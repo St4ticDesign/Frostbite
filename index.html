@@ -417,24 +417,25 @@ a {
     position: absolute;
     z-index: -1;
 
-    inset: 18px -18px 34px;
+    inset: 10px -26px 24px;
 
     pointer-events: none;
 
     background:
         radial-gradient(
-            ellipse at 50% 34%,
-            rgba(92, 178, 220, .055) 0%,
-            rgba(66, 146, 188, .030) 36%,
-            rgba(37, 100, 132, .014) 58%,
-            transparent 76%
+            ellipse at 50% 38%,
+            rgba(78, 171, 218, .115) 0%,
+            rgba(58, 143, 187, .070) 34%,
+            rgba(42, 112, 151, .040) 57%,
+            rgba(27, 77, 104, .018) 72%,
+            transparent 88%
         );
 
     box-shadow:
-        0 0 70px rgba(79, 168, 214, .025),
-        inset 0 0 80px rgba(80, 170, 215, .012);
+        0 0 95px rgba(74, 166, 214, .060),
+        inset 0 0 110px rgba(70, 158, 204, .025);
 
-    filter: blur(8px);
+    filter: blur(12px);
 }
 
 .eyebrow {
@@ -2969,17 +2970,22 @@ const adminRoleStatus =
 
 
 function getRoleManagedMembers() {
+    const members = [];
     const registered = getSavedMember();
 
-    const map = new Map();
+    /*
+        IMPORTANT:
+        The public Members page currently contains presentation/demo cards.
+        Those cards are NOT registered website accounts and must never be
+        treated as Admin-page identities.
 
-    temporaryMembers.forEach(member => {
-        map.set(Number(member.id), applyIdentityRole(member));
-    });
+        Until D1 registration records are connected, this list contains only
+        the verified account saved in this browser. Future registered members
+        will come from D1, not from temporaryMembers.
+    */
 
     if (registered?.id) {
-        map.set(
-            Number(registered.id),
+        members.push(
             applyIdentityRole({
                 id: Number(registered.id),
                 name: registered.name,
@@ -2992,7 +2998,7 @@ function getRoleManagedMembers() {
         );
     }
 
-    return [...map.values()];
+    return members;
 }
 
 
@@ -3037,7 +3043,7 @@ function renderAdminRoleManager() {
                     ${member.name} · ${roleLabel(getMemberRole(member))}
                 </option>
             `).join("")
-            : `<option value="">No registered members available</option>`;
+            : `<option value="">No other registered members yet</option>`;
 
     updateAdminRoleButton();
 }
