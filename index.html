@@ -1740,16 +1740,17 @@ a {
 
 .members-live-message {
     grid-column: 1 / -1;
-    min-height: 150px;
+    min-height: 156px;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--border);
-    color: #747672;
+    color: #777a77;
     font-size: 9px;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.6px;
     text-align: center;
 }
+
 </style>
 </head>
 
@@ -1899,17 +1900,17 @@ a {
             <div class="stat-strip">
 
                 <div class="stat-box">
-                    <div class="stat-value">48</div>
+                    <div class="stat-value" id="membersTotal">—</div>
                     <div class="stat-label">MEMBERS</div>
                 </div>
 
                 <div class="stat-box">
-                    <div class="stat-value">92%</div>
+                    <div class="stat-value" id="membersActive7d">—</div>
                     <div class="stat-label">ACTIVE (7D)</div>
                 </div>
 
                 <div class="stat-box">
-                    <div class="stat-value">1,845</div>
+                    <div class="stat-value" id="membersActiveNow">—</div>
                     <div class="stat-label">ACTIVE NOW</div>
                 </div>
 
@@ -2506,15 +2507,25 @@ function applyIdentityRole(member) {
 }
 
 
-
 function getLiveStatusClass(lastActionStatus) {
     const status = String(lastActionStatus || "").toLowerCase();
+
     if (status === "online") return "online";
     if (status === "idle") return "idle";
+
     return "offline";
 }
 
+
 function renderMembers(members) {
+    if (!members.length) {
+        membersGrid.innerHTML = `
+            <div class="members-live-message">
+                MEMBER DATA WILL LOAD AFTER FROSTBITE MEMBER ACCESS IS VERIFIED
+            </div>
+        `;
+        return;
+    }
 
     membersGrid.innerHTML =
         members.map(member => `
@@ -2587,110 +2598,159 @@ function renderMembers(members) {
 }
 
 
-renderMembers(temporaryMembers);
-
-
 /* =========================================================
-   MEMBER SEARCH
+   LIVE MEMBER DATA
    ========================================================= */
 
 const memberSearch =
     document.getElementById("memberSearch");
 
+const membersTotal =
+    document.getElementById("membersTotal");
+
+const membersActive7d =
+    document.getElementById("membersActive7d");
+
+const membersActiveNow =
+    document.getElementById("membersActiveNow");
 
 
-const membersTotal = document.getElementById("membersTotal");
-const membersActive7d = document.getElementById("membersActive7d");
-const membersActiveNow = document.getElementById("membersActiveNow");
+function resetMemberSummary() {
+    membersTotal.textContent = "—";
+    membersActive7d.textContent = "—";
+    membersActiveNow.textContent = "—";
+}
+
 
 function updateMemberSummary(members) {
     const now = Math.floor(Date.now() / 1000);
-    const active7dWindow = 7 * 24 * 60 * 60;
-    const activeNowWindow = 5 * 60;
+    const sevenDays = 7 * 24 * 60 * 60;
+    const fiveMinutes = 5 * 60;
 
-    const active7d = members.filter(member =>
-        member.lastActionTimestamp > 0 &&
-        (now - member.lastActionTimestamp) <= active7dWindow
-    ).length;
+    const active7dCount =
+        members.filter(member => {
+            const timestamp =
+                Number(member.lastActionTimestamp || 0);
 
-    const activeNow = members.filter(member =>
-        member.lastActionTimestamp > 0 &&
-        (now - member.lastActionTimestamp) <= activeNowWindow
-    ).length;
+            return (
+                timestamp > 0 &&
+                now - timestamp <= sevenDays
+            );
+        }).length;
 
-    membersTotal.textContent = members.length.toLocaleString();
-    membersActive7d.textContent = members.length
-        ? `${Math.round((active7d / members.length) * 100)}%`
-        : "0%";
-    membersActiveNow.textContent = activeNow.toLocaleString();
+    const activeNowCount =
+        members.filter(member => {
+            const timestamp =
+                Number(member.lastActionTimestamp || 0);
+
+            return (
+                timestamp > 0 &&
+                now - timestamp <= fiveMinutes
+            );
+        }).length;
+
+    membersTotal.textContent =
+        members.length.toLocaleString();
+
+    membersActive7d.textContent =
+        members.length
+            ? `${Math.round(
+                (active7dCount / members.length) * 100
+            )}%`
+            : "0%";
+
+    membersActiveNow.textContent =
+        activeNowCount.toLocaleString();
 }
+
 
 function mapFactionMember(member) {
     return {
         id: Number(member.id),
-        name: member.name || `Player ${member.id}`,
+        name:
+            member.name ||
+            `Player ${member.id}`,
         role: "member",
-        level: Number(member.level || 0),
-        rank: member.position || "Member",
-        status: member.last_action?.status || "Offline",
-        statusClass: getLiveStatusClass(member.last_action?.status),
-        action: member.last_action?.relative || "Unknown",
-        lastActionTimestamp: Number(member.last_action?.timestamp || 0)
+        level:
+            Number(member.level || 0),
+        rank:
+            member.position ||
+            "Member",
+        status:
+            member.last_action?.status ||
+            "Offline",
+        statusClass:
+            getLiveStatusClass(
+                member.last_action?.status
+            ),
+        action:
+            member.last_action?.relative ||
+            "Unknown",
+        lastActionTimestamp:
+            Number(
+                member.last_action?.timestamp || 0
+            )
     };
 }
 
+
 async function loadLiveFactionMembers() {
-    const apiKey = localStorage.getItem("frostbite_api_key");
+    const apiKey =
+        localStorage.getItem("frostbite_api_key");
 
     if (!apiKey) {
         temporaryMembers = [];
-        membersTotal.textContent = "—";
-        membersActive7d.textContent = "—";
-        membersActiveNow.textContent = "—";
+        resetMemberSummary();
         renderMembers([]);
         return;
     }
 
-    memberGrid.innerHTML = `
+    membersGrid.innerHTML = `
         <div class="members-live-message">
-            Loading live Frostbite roster...
+            LOADING LIVE FROSTBITE ROSTER...
         </div>
     `;
 
     try {
-        const data = await tornRequest(
-            `faction/${FROSTBITE_FACTION_ID}/members`,
-            apiKey
-        );
+        const data =
+            await tornRequest(
+                `faction/${FROSTBITE_FACTION_ID}/members?striptags=true`,
+                apiKey
+            );
 
-        temporaryMembers = (Array.isArray(data?.members) ? data.members : [])
-            .map(mapFactionMember);
+        const roster =
+            Array.isArray(data?.members)
+                ? data.members
+                : [];
+
+        temporaryMembers =
+            roster
+                .map(mapFactionMember)
+                .sort((a, b) =>
+                    a.name.localeCompare(b.name)
+                );
 
         updateMemberSummary(temporaryMembers);
         renderMembers(temporaryMembers);
-        renderAdminRoleManager();
 
     } catch (error) {
         temporaryMembers = [];
-        membersTotal.textContent = "—";
-        membersActive7d.textContent = "—";
-        membersActiveNow.textContent = "—";
+        resetMemberSummary();
 
-        memberGrid.innerHTML = `
+        membersGrid.innerHTML = `
             <div class="members-live-message">
-                ${error?.message || "Unable to load the live Frostbite roster."}
+                ${error?.message || "UNABLE TO LOAD THE LIVE FROSTBITE ROSTER"}
             </div>
         `;
     }
 }
 
-memberSearch.addEventListener("input", () => {
 
+memberSearch.addEventListener("input", () => {
     const search =
         memberSearch.value
             .trim()
             .toLowerCase();
-
 
     const filtered =
         temporaryMembers.filter(member =>
@@ -2699,10 +2759,11 @@ memberSearch.addEventListener("input", () => {
                 .includes(search)
         );
 
-
     renderMembers(filtered);
-
 });
+
+
+renderMembers(temporaryMembers);
 
 
 /* =========================================================
@@ -2913,7 +2974,7 @@ async function verifyFrostbiteMember() {
         localStorage.setItem("frostbite_api_key", apiKey);
         localStorage.setItem("frostbite_member", JSON.stringify(member));
 
-        loadLiveFactionMembers();
+        await loadLiveFactionMembers();
 
         setAccessStatus(`Verified. Welcome to Frostbite, ${playerName}.`, "success");
 
