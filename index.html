@@ -1424,18 +1424,6 @@ a {
 
 .admin-section{display:none}
 .admin-section.active{display:block}
-.admin-notes-compose{display:grid;gap:12px}
-.admin-notes-input{width:100%;min-height:150px;resize:vertical;box-sizing:border-box;padding:14px;border:1px solid var(--border);background:rgba(5,6,6,.7);color:#bfc0bb;font:inherit;line-height:1.6}
-.admin-notes-actions{display:flex;justify-content:flex-end}
-.admin-notes-list{margin-top:22px;display:grid;gap:10px}
-.admin-note{padding:14px 16px;border:1px solid var(--border-soft);background:rgba(5,6,6,.45)}
-.admin-note-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
-.admin-note-time{color:#626461;font-size:8px;font-weight:600;letter-spacing:1.3px}
-.admin-note-delete,.admin-notes-delete-all{border:1px solid #68464a;background:rgba(120,30,36,.06);color:#a8787c;font-size:7px;font-weight:700;letter-spacing:1.1px;cursor:pointer}
-.admin-note-delete{height:26px;padding:0 10px}
-.admin-notes-delete-all{height:32px;padding:0 13px}
-.admin-note-delete:hover,.admin-notes-delete-all:hover{border-color:#8a5a60;color:#d9a3a7}
-.admin-note-text{margin-top:8px;color:#aaaDA8;font-size:11px;line-height:1.65;white-space:pre-wrap}
 .admin-empty{padding:18px;border:1px solid var(--border-soft);color:#666865;font-size:9px}
 .admin-remove-list{display:grid;gap:10px}
 .admin-remove-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 16px;border:1px solid var(--border-soft);background:rgba(5,6,6,.45)}
@@ -2250,8 +2238,6 @@ a {
 
             <aside class="admin-sidebar">
                 <button class="admin-menu-button active" data-admin-section="members">Members</button>
-                <button class="admin-menu-button" data-admin-section="war-notes">War Notes</button>
-                <button class="admin-menu-button" data-admin-section="chain-notes">Chain Notes</button>
                 <button class="admin-menu-button" data-admin-section="settings">Settings</button>
             </aside>
 
@@ -2327,24 +2313,6 @@ a {
                 </div>
 
             </div>
-
-                <div id="adminSectionWarNotes" class="admin-section">
-                    <div class="admin-panel-header"><div><h2 class="admin-panel-title">WAR NOTES</h2><div class="admin-panel-description">Admin notes for ranked wars. Every entry is timestamped.</div></div><button class="admin-notes-delete-all" type="button" data-delete-all-notes="war">DELETE ALL</button></div>
-                    <div class="admin-notes-compose">
-                        <textarea id="warNoteInput" class="admin-notes-input" placeholder="Write a war note..."></textarea>
-                        <div class="admin-notes-actions"><button id="saveWarNote" class="add-member-button" type="button">+ ADD NOTE</button></div>
-                    </div>
-                    <div id="warNotesList" class="admin-notes-list"></div>
-                </div>
-
-                <div id="adminSectionChainNotes" class="admin-section">
-                    <div class="admin-panel-header"><div><h2 class="admin-panel-title">CHAIN NOTES</h2><div class="admin-panel-description">Admin notes for faction chains. Every entry is timestamped.</div></div><button class="admin-notes-delete-all" type="button" data-delete-all-notes="chain">DELETE ALL</button></div>
-                    <div class="admin-notes-compose">
-                        <textarea id="chainNoteInput" class="admin-notes-input" placeholder="Write a chain note..."></textarea>
-                        <div class="admin-notes-actions"><button id="saveChainNote" class="add-member-button" type="button">+ ADD NOTE</button></div>
-                    </div>
-                    <div id="chainNotesList" class="admin-notes-list"></div>
-                </div>
 
                 <div id="adminSectionSettings" class="admin-section">
                     <div class="admin-panel-header"><div><h2 class="admin-panel-title">SETTINGS</h2><div class="admin-panel-description">Remove registered members from Frostbite website access.</div></div></div>
@@ -3265,68 +3233,11 @@ forgetMemberButton.addEventListener("click", () => {
    ADMIN SECTIONS / NOTES / MEMBER REMOVAL
    ========================================================= */
 
-const ADMIN_WAR_NOTES_KEY="frostbite_admin_war_notes";
-const ADMIN_CHAIN_NOTES_KEY="frostbite_admin_chain_notes";
-
-function adminEscape(value){
-    return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
-}
-function readAdminNotes(key){
-    try{const value=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(value)?value:[]}catch{return []}
-}
-function renderAdminNotes(key,targetId){
-    const target=document.getElementById(targetId);
-    if(!target)return;
-    const notes=readAdminNotes(key);
-    target.innerHTML=notes.length?notes.map((note,index)=>`<div class="admin-note"><div class="admin-note-head"><div class="admin-note-time">${adminEscape(note.time)}</div><button class="admin-note-delete" type="button" data-note-index="${index}" data-note-key="${adminEscape(key)}" data-note-target="${adminEscape(targetId)}">DELETE</button></div><div class="admin-note-text">${adminEscape(note.text)}</div></div>`).join(""):`<div class="admin-empty">NO NOTES YET</div>`;
-}
-function addAdminNote(key,inputId,targetId){
-    const input=document.getElementById(inputId);
-    const text=input?.value.trim();
-    if(!text)return;
-    const notes=readAdminNotes(key);
-    notes.unshift({id:Date.now()+"-"+Math.random().toString(36).slice(2),time:new Date().toLocaleString("en-AU"),text});
-    localStorage.setItem(key,JSON.stringify(notes));
-    input.value="";
-    renderAdminNotes(key,targetId);
-}
-document.getElementById("saveWarNote")?.addEventListener("click",()=>addAdminNote(ADMIN_WAR_NOTES_KEY,"warNoteInput","warNotesList"));
-document.getElementById("saveChainNote")?.addEventListener("click",()=>addAdminNote(ADMIN_CHAIN_NOTES_KEY,"chainNoteInput","chainNotesList"));
-renderAdminNotes(ADMIN_WAR_NOTES_KEY,"warNotesList");
-renderAdminNotes(ADMIN_CHAIN_NOTES_KEY,"chainNotesList");
-
-document.addEventListener("click",event=>{
-    const deleteButton=event.target.closest(".admin-note-delete");
-    if(deleteButton){
-        const key=deleteButton.dataset.noteKey;
-        const targetId=deleteButton.dataset.noteTarget;
-        const index=Number(deleteButton.dataset.noteIndex);
-        const notes=readAdminNotes(key);
-        if(Number.isInteger(index)&&index>=0&&index<notes.length){
-            notes.splice(index,1);
-            localStorage.setItem(key,JSON.stringify(notes));
-            renderAdminNotes(key,targetId);
-        }
-        return;
-    }
-
-    const deleteAll=event.target.closest("[data-delete-all-notes]");
-    if(!deleteAll)return;
-    const isWar=deleteAll.dataset.deleteAllNotes==="war";
-    const key=isWar?ADMIN_WAR_NOTES_KEY:ADMIN_CHAIN_NOTES_KEY;
-    const targetId=isWar?"warNotesList":"chainNotesList";
-    const notes=readAdminNotes(key);
-    if(!notes.length)return;
-    if(!confirm("Delete all notes in this section?"))return;
-    localStorage.removeItem(key);
-    renderAdminNotes(key,targetId);
-});
-
 document.querySelectorAll("[data-admin-section]").forEach(button=>{
     button.addEventListener("click",()=>{
         document.querySelectorAll("[data-admin-section]").forEach(x=>x.classList.toggle("active",x===button));
         document.querySelectorAll(".admin-section").forEach(x=>x.classList.remove("active"));
-        const map={"members":"adminSectionMembers","war-notes":"adminSectionWarNotes","chain-notes":"adminSectionChainNotes","settings":"adminSectionSettings"};
+        const map={"members":"adminSectionMembers","settings":"adminSectionSettings"};
         document.getElementById(map[button.dataset.adminSection])?.classList.add("active");
         if(button.dataset.adminSection==="settings")renderAdminRemoveMembers();
     });
