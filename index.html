@@ -2760,44 +2760,103 @@ function mapFactionMember(member) {
 }
 
 
-async function loadLiveFactionMembers() {
-    const apiKey =
-        localStorage.getItem("frostbite_api_key");
-
-    if (!apiKey) {
-        temporaryMembers = [];
-        resetMemberSummary();
-        renderMembers([]);
-        return;
-    }
-
+async function loadRegisteredMembers() {
     membersGrid.innerHTML = `
         <div class="members-live-message">
-            LOADING LIVE FROSTBITE ROSTER...
+            LOADING REGISTERED FROSTBITE MEMBERS...
         </div>
     `;
 
     try {
-        const data =
-            await tornRequest(
-                `faction/${FROSTBITE_FACTION_ID}/members?striptags=true`,
-                apiKey
+        const response = await fetch("/api/members", {
+            method: "GET",
+            cache: "no-store"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data?.ok) {
+            throw new Error(
+                data?.error ||
+                "Unable to load registered Frostbite members."
             );
+        }
 
-        const roster =
-            Array.isArray(data?.members)
-                ? data.members
-                : [];
+        const registered = Array.isArray(data.members)
+            ? data.members
+            : [];
 
-        temporaryMembers =
-            roster
-                .map(mapFactionMember)
-                .sort((a, b) =>
-                    a.name.localeCompare(b.name)
+        if (!registered.length) {
+            temporaryMembers = [];
+            membersTotal.textContent = "0";
+            membersActive7d.textContent = "—";
+            membersActiveNow.textContent = "—";
+            renderMembers([]);
+            return;
+        }
+
+        const registeredById = new Map(
+            registered.map(member => [
+                Number(member.id),
+                member
+            ])
+        );
+
+        temporaryMembers = registered.map(member => ({
+            id: Number(member.id),
+            name: member.name,
+            role: member.role || "member",
+            level: "—",
+            rank: "Registered",
+            status: "Registered",
+            statusClass: "",
+            action: "—",
+            lastActionTimestamp: 0
+        }));
+
+        membersTotal.textContent =
+            registered.length.toLocaleString();
+
+        membersActive7d.textContent = "—";
+        membersActiveNow.textContent = "—";
+
+        const apiKey =
+            localStorage.getItem("frostbite_api_key");
+
+        if (apiKey) {
+            try {
+                const factionData = await tornRequest(
+                    `faction/${FROSTBITE_FACTION_ID}/members?striptags=true`,
+                    apiKey
                 );
 
-        updateMemberSummary(temporaryMembers);
+                const roster = Array.isArray(factionData?.members)
+                    ? factionData.members
+                    : [];
+
+                temporaryMembers = roster
+                    .filter(member =>
+                        registeredById.has(Number(member.id))
+                    )
+                    .map(member => {
+                        const live = mapFactionMember(member);
+                        const registeredMember =
+                            registeredById.get(Number(member.id));
+
+                        return {
+                            ...live,
+                            role: registeredMember?.role || "member"
+                        };
+                    });
+
+                updateMemberSummary(temporaryMembers);
+            } catch {
+                /* Registered members remain visible even if Torn live data fails. */
+            }
+        }
+
         renderMembers(temporaryMembers);
+        renderAdminRoleManager();
 
     } catch (error) {
         temporaryMembers = [];
@@ -2805,12 +2864,11 @@ async function loadLiveFactionMembers() {
 
         membersGrid.innerHTML = `
             <div class="members-live-message">
-                ${error?.message || "UNABLE TO LOAD THE LIVE FROSTBITE ROSTER"}
+                ${error?.message || "UNABLE TO LOAD REGISTERED FROSTBITE MEMBERS"}
             </div>
         `;
     }
 }
-
 
 memberSearch.addEventListener("input", () => {
     const search =
@@ -3037,10 +3095,35 @@ async function verifyFrostbiteMember() {
             verifiedAt: new Date().toISOString()
         };
 
+        const registerResponse = await fetch("/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                tornId: playerId,
+                name: playerName,
+                factionId: factionId,
+                daysInFaction: 0
+            })
+        });
+
+        const registerData = await registerResponse.json();
+
+        if (!registerResponse.ok || !registerData?.ok) {
+            throw new Error(
+                registerData?.error ||
+                "Frostbite could not create your website membership."
+            );
+        }
+
+        member.role =
+            registerData?.member?.role || member.role;
+
         localStorage.setItem("frostbite_api_key", apiKey);
         localStorage.setItem("frostbite_member", JSON.stringify(member));
 
-        await loadLiveFactionMembers();
+        await loadRegisteredMembers();
 
         setAccessStatus(`Verified. Welcome to Frostbite, ${playerName}.`, "success");
 
@@ -3125,37 +3208,13 @@ const adminRoleStatus =
 
 
 function getRoleManagedMembers() {
-    const members = [];
-    const registered = getSavedMember();
-
-    /*
-        IMPORTANT:
-        The public Members page currently contains presentation/demo cards.
-        Those cards are NOT registered website accounts and must never be
-        treated as Admin-page identities.
-
-        Until D1 registration records are connected, this list contains only
-        the verified account saved in this browser. Future registered members
-        will come from D1, not from temporaryMembers.
-    */
-
-    if (registered?.id) {
-        members.push(
-            applyIdentityRole({
-                id: Number(registered.id),
-                name: registered.name,
-                level: "—",
-                rank: "Registered",
-                status: "Registered",
-                statusClass: "",
-                action: "This browser"
-            })
-        );
-    }
-
-    return members;
+    return temporaryMembers.map(member =>
+        applyIdentityRole({
+            ...member,
+            id: Number(member.id)
+        })
+    );
 }
-
 
 function renderAdminRoleManager() {
     if (!adminMembersTableBody || !adminMemberSelect) return;
@@ -3231,48 +3290,17 @@ adminMemberSelect?.addEventListener(
 toggleAdminRoleButton?.addEventListener(
     "click",
     () => {
-        const selectedId = Number(adminMemberSelect.value);
-
-        if (!selectedId || selectedId === FROSTBITE_OWNER_ID) return;
-
-        const admins = getAdminIds();
-        const isAdmin = admins.includes(selectedId);
-
-        const nextAdmins =
-            isAdmin
-                ? admins.filter(id => id !== selectedId)
-                : [...admins, selectedId];
-
-        saveAdminIds(nextAdmins);
-
-        const member =
-            getRoleManagedMembers().find(
-                item => Number(item.id) === selectedId
-            );
-
         adminRoleStatus.textContent =
-            isAdmin
-                ? `${member?.name || "Member"} returned to Member.`
-                : `${member?.name || "Member"} is now an Admin.`;
-
+            "Persistent Admin changes are being connected to Frostbite D1.";
         adminRoleStatus.className =
-            "admin-role-status success";
-
-        renderMembers(temporaryMembers);
-        renderAdminRoleManager();
-
-        const savedMember = getSavedMember();
-
-        if (savedMember) {
-            showSavedMember(savedMember);
-        }
+            "admin-role-status";
     }
 );
 
 
 renderAdminRoleManager();
 
-loadLiveFactionMembers();
+loadRegisteredMembers();
 
 
 
