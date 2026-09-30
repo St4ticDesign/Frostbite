@@ -156,34 +156,100 @@ a {
     color: transparent;
 
     background:
+        radial-gradient(ellipse at 8% 28%, rgba(238,238,232,.96) 0 3%, transparent 8%),
+        radial-gradient(ellipse at 19% 72%, rgba(112,113,109,.95) 0 4%, transparent 10%),
+        radial-gradient(ellipse at 31% 18%, rgba(214,214,207,.92) 0 3%, transparent 9%),
+        radial-gradient(ellipse at 44% 61%, rgba(118,119,115,.90) 0 5%, transparent 12%),
+        radial-gradient(ellipse at 57% 33%, rgba(225,224,217,.90) 0 4%, transparent 10%),
+        radial-gradient(ellipse at 69% 78%, rgba(104,106,102,.92) 0 5%, transparent 12%),
+        radial-gradient(ellipse at 82% 22%, rgba(220,219,212,.90) 0 4%, transparent 11%),
+        radial-gradient(ellipse at 94% 64%, rgba(119,121,116,.94) 0 4%, transparent 10%),
+        repeating-linear-gradient(104deg,
+            rgba(255,255,255,.00) 0 7px,
+            rgba(255,255,255,.055) 8px 9px,
+            rgba(0,0,0,.10) 10px 12px,
+            rgba(255,255,255,.00) 13px 23px
+        ),
         linear-gradient(
             180deg,
-            #dad9d4 0%,
-            #c2c2bd 34%,
-            #aaa9a5 58%,
-            #d1d0cb 78%,
-            #a3a4a0 100%
+            #d8d7d1 0%,
+            #b7b8b3 24%,
+            #858783 48%,
+            #c4c4be 70%,
+            #8b8d89 100%
         );
+
+    background-size:
+        173px 97px,
+        211px 121px,
+        149px 113px,
+        239px 137px,
+        181px 109px,
+        257px 143px,
+        197px 127px,
+        227px 131px,
+        100% 100%,
+        100% 100%;
+
+    background-blend-mode:
+        screen,
+        multiply,
+        screen,
+        multiply,
+        screen,
+        multiply,
+        screen,
+        multiply,
+        overlay,
+        normal;
 
     background-clip: text;
     -webkit-background-clip: text;
 
     text-shadow:
-        0 1px 0 rgba(255,255,255,.08),
+        0 1px 0 rgba(255,255,255,.06),
         0 7px 24px rgba(0,0,0,.25);
+
+    filter: contrast(1.18);
 }
 
 .weathered-soft {
     color: transparent;
 
     background:
+        radial-gradient(ellipse at 14% 35%, rgba(226,226,220,.86) 0 3%, transparent 10%),
+        radial-gradient(ellipse at 37% 70%, rgba(112,114,110,.80) 0 4%, transparent 12%),
+        radial-gradient(ellipse at 61% 24%, rgba(218,218,211,.82) 0 3%, transparent 10%),
+        radial-gradient(ellipse at 83% 66%, rgba(115,117,113,.78) 0 4%, transparent 11%),
+        repeating-linear-gradient(108deg,
+            rgba(255,255,255,.00) 0 10px,
+            rgba(255,255,255,.035) 11px 12px,
+            rgba(0,0,0,.065) 13px 14px,
+            rgba(255,255,255,.00) 15px 28px
+        ),
         linear-gradient(
             180deg,
-            #d2d1cd 0%,
-            #bbbcb8 45%,
-            #9fa09d 72%,
-            #c3c3bf 100%
+            #d0cfca 0%,
+            #b5b6b1 42%,
+            #929490 70%,
+            #bdbdb8 100%
         );
+
+    background-size:
+        181px 109px,
+        223px 131px,
+        167px 101px,
+        241px 139px,
+        100% 100%,
+        100% 100%;
+
+    background-blend-mode:
+        screen,
+        multiply,
+        screen,
+        multiply,
+        overlay,
+        normal;
 
     background-clip: text;
     -webkit-background-clip: text;
@@ -191,6 +257,8 @@ a {
     text-shadow:
         0 1px 0 rgba(255,255,255,.04),
         0 4px 15px rgba(0,0,0,.22);
+
+    filter: contrast(1.10);
 }
 
 
