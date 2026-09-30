@@ -3101,10 +3101,7 @@ async function verifyFrostbiteMember() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                tornId: playerId,
-                name: playerName,
-                factionId: factionId,
-                daysInFaction: 0
+                apiKey
             })
         });
 
@@ -3265,21 +3262,23 @@ function renderAdminRoleManager() {
 
 function updateAdminRoleButton() {
     const selectedId = Number(adminMemberSelect?.value);
+    const selectedMember =
+        getRoleManagedMembers().find(
+            member => Number(member.id) === selectedId
+        );
 
-    if (!selectedId) {
+    if (!selectedId || !selectedMember) {
         toggleAdminRoleButton.disabled = true;
         toggleAdminRoleButton.textContent = "GRANT ADMIN";
         return;
     }
 
     toggleAdminRoleButton.disabled = false;
-
     toggleAdminRoleButton.textContent =
-        getAdminIds().includes(selectedId)
+        getMemberRole(selectedMember) === "admin"
             ? "REMOVE ADMIN"
             : "GRANT ADMIN";
 }
-
 
 adminMemberSelect?.addEventListener(
     "change",
@@ -3289,11 +3288,75 @@ adminMemberSelect?.addEventListener(
 
 toggleAdminRoleButton?.addEventListener(
     "click",
-    () => {
-        adminRoleStatus.textContent =
-            "Persistent Admin changes are being connected to Frostbite D1.";
-        adminRoleStatus.className =
-            "admin-role-status";
+    async () => {
+        const savedMember = getSavedMember();
+        const apiKey = localStorage.getItem("frostbite_api_key");
+        const targetId = Number(adminMemberSelect.value);
+        const target =
+            getRoleManagedMembers().find(
+                member => Number(member.id) === targetId
+            );
+
+        if (
+            !savedMember ||
+            Number(savedMember.id) !== FROSTBITE_OWNER_ID ||
+            !apiKey
+        ) {
+            adminRoleStatus.textContent =
+                "Owner verification is required to change Admin roles.";
+            adminRoleStatus.className = "admin-role-status";
+            return;
+        }
+
+        if (!target || targetId === FROSTBITE_OWNER_ID) return;
+
+        const nextRole =
+            getMemberRole(target) === "admin"
+                ? "member"
+                : "admin";
+
+        toggleAdminRoleButton.disabled = true;
+        adminRoleStatus.textContent = "UPDATING ROLE...";
+        adminRoleStatus.className = "admin-role-status";
+
+        try {
+            const response = await fetch("/api/role", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    apiKey,
+                    targetId,
+                    role: nextRole
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data?.ok) {
+                throw new Error(
+                    data?.error || "Role update failed."
+                );
+            }
+
+            adminRoleStatus.textContent =
+                nextRole === "admin"
+                    ? `${target.name} is now an Admin.`
+                    : `${target.name} returned to Member.`;
+
+            adminRoleStatus.className =
+                "admin-role-status success";
+
+            await loadRegisteredMembers();
+
+        } catch (error) {
+            adminRoleStatus.textContent =
+                error?.message || "Role update failed.";
+            adminRoleStatus.className =
+                "admin-role-status";
+            updateAdminRoleButton();
+        }
     }
 );
 
