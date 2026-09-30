@@ -1,17 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Frostbite | We Lead</title>
+
 <style>
+/* =========================================================
+   FROSTBITE
+   Phase 1.1 - Weathered Visual System
+   ========================================================= */
+
 :root {
-    --bg: #070808;
-    --panel: #0b0c0c;
-    --panel-hover: #101111;
+    --bg: #080909;
+    --bg-deep: #050606;
+    --panel: #0d0e0e;
+    --panel-hover: #111212;
 
-    --text: #aaa9a5;
-    --text-muted: #747572;
-    --text-faint: #535451;
+    --text: #c9c9c5;
+    --text-soft: #aaa9a4;
+    --text-muted: #777976;
+    --text-faint: #555754;
 
-    --heading: #bbbcb8;
+    --heading: #d2d1cc;
+    --heading-dark: #9c9d99;
 
-    --border: #343532;
-    --border-soft: #20211f;
+    --border: #353633;
+    --border-soft: #222320;
+    --border-faint: #191a18;
 
     --green: #67b77a;
     --orange: #b28a53;
@@ -31,7 +48,6 @@ html {
 body {
     margin: 0;
     min-height: 100vh;
-    overflow-x: hidden;
 
     color: var(--text);
 
@@ -44,24 +60,33 @@ body {
 
     background:
         radial-gradient(
-            ellipse at 50% 32%,
-            rgba(110,112,108,.035),
-            transparent 42%
+            ellipse at 50% -5%,
+            rgba(150,150,145,.08) 0%,
+            rgba(70,72,70,.035) 28%,
+            transparent 57%
+        ),
+        radial-gradient(
+            ellipse at 12% 78%,
+            rgba(110,112,108,.025),
+            transparent 35%
         ),
         linear-gradient(
             135deg,
-            #0d0e0e 0%,
-            #080909 42%,
-            #050606 100%
+            #101110 0%,
+            #090a0a 38%,
+            #060707 72%,
+            #040505 100%
         );
 
     background-attachment: fixed;
+
+    overflow-x: hidden;
 }
 
 
-/* =========================================================
-   SITE-WIDE PHYSICAL GRAIN
-   ========================================================= */
+/* ---------------------------------------------------------
+   ATMOSPHERE / GRAIN
+   --------------------------------------------------------- */
 
 body::before {
     content: "";
@@ -69,30 +94,41 @@ body::before {
     position: fixed;
     inset: 0;
 
+    pointer-events: none;
     z-index: 9999;
 
-    pointer-events: none;
-
-    opacity: .13;
+    opacity: .17;
 
     background-image:
         repeating-radial-gradient(
-            circle at 17% 23%,
-            rgba(255,255,255,.16) 0,
-            rgba(255,255,255,.16) .35px,
-            transparent .5px,
+            circle at 17% 21%,
+            rgba(255,255,255,.09) 0,
+            rgba(255,255,255,.09) .45px,
+            transparent .6px,
             transparent 3px
         );
 
-    background-size: 8px 8px;
+    background-size: 7px 7px;
 
     mix-blend-mode: soft-light;
 }
 
+body::after {
+    content: "";
 
-/* =========================================================
-   CONTROLS
-   ========================================================= */
+    position: fixed;
+    inset: 0;
+
+    pointer-events: none;
+    z-index: -1;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 100%,
+            rgba(125,127,122,.045),
+            transparent 42%
+        );
+}
 
 button,
 input,
@@ -111,215 +147,50 @@ a {
 
 
 /* =========================================================
-   DISTRESSED TYPOGRAPHY
+   TEXTURE SYSTEM
    ========================================================= */
-
-/*
-   Main Frostbite texture.
-
-   Multiple masks create irregular worn areas rather than
-   repeating obvious dots or scratches.
-*/
 
 .weathered {
     position: relative;
 
-    display: inline-block;
-
     color: transparent;
 
     background:
-        radial-gradient(
-            ellipse at 18% 25%,
-            #deded9 0%,
-            #c2c2bd 19%,
-            transparent 41%
-        ),
-
-        radial-gradient(
-            ellipse at 70% 72%,
-            #8d8f8c 0%,
-            #b6b7b2 21%,
-            transparent 47%
-        ),
-
-        radial-gradient(
-            ellipse at 42% 54%,
-            #d0d0cb 0%,
-            #a2a39f 32%,
-            transparent 60%
-        ),
-
         linear-gradient(
             180deg,
-            #d8d7d2 0%,
-            #babbb6 28%,
-            #898b88 52%,
-            #b9bab5 72%,
-            #777976 100%
+            #dad9d4 0%,
+            #c2c2bd 34%,
+            #aaa9a5 58%,
+            #d1d0cb 78%,
+            #a3a4a0 100%
         );
 
-    -webkit-background-clip: text;
     background-clip: text;
-
-    filter:
-        contrast(1.12)
-        brightness(.92);
+    -webkit-background-clip: text;
 
     text-shadow:
-        0 1px 0 rgba(255,255,255,.07),
-        0 12px 32px rgba(0,0,0,.36);
+        0 1px 0 rgba(255,255,255,.08),
+        0 7px 24px rgba(0,0,0,.25);
 }
-
-
-/*
-   Distress layer.
-
-   This sits OVER the text but is clipped to the shape
-   of the letters.
-*/
-
-.weathered::after {
-    content: attr(data-text);
-
-    position: absolute;
-    inset: 0;
-
-    color: transparent;
-
-    background:
-
-        radial-gradient(
-            circle at 7% 19%,
-            rgba(8,9,9,.75) 0 1.5%,
-            transparent 1.8%
-        ),
-
-        radial-gradient(
-            circle at 13% 72%,
-            rgba(5,6,6,.62) 0 2.1%,
-            transparent 2.5%
-        ),
-
-        radial-gradient(
-            ellipse at 21% 43%,
-            rgba(8,9,9,.68) 0 2.2%,
-            transparent 2.7%
-        ),
-
-        radial-gradient(
-            circle at 29% 18%,
-            rgba(7,8,8,.8) 0 1.3%,
-            transparent 1.7%
-        ),
-
-        radial-gradient(
-            ellipse at 35% 80%,
-            rgba(5,6,6,.72) 0 2.8%,
-            transparent 3.2%
-        ),
-
-        radial-gradient(
-            circle at 43% 37%,
-            rgba(7,8,8,.72) 0 1.7%,
-            transparent 2.1%
-        ),
-
-        radial-gradient(
-            ellipse at 49% 62%,
-            rgba(5,6,6,.64) 0 2.2%,
-            transparent 2.7%
-        ),
-
-        radial-gradient(
-            circle at 57% 15%,
-            rgba(7,8,8,.72) 0 1.8%,
-            transparent 2.2%
-        ),
-
-        radial-gradient(
-            ellipse at 64% 74%,
-            rgba(5,6,6,.78) 0 2.4%,
-            transparent 2.9%
-        ),
-
-        radial-gradient(
-            circle at 71% 35%,
-            rgba(6,7,7,.7) 0 1.5%,
-            transparent 2%
-        ),
-
-        radial-gradient(
-            ellipse at 78% 61%,
-            rgba(5,6,6,.7) 0 2.5%,
-            transparent 3%
-        ),
-
-        radial-gradient(
-            circle at 84% 21%,
-            rgba(7,8,8,.75) 0 1.8%,
-            transparent 2.2%
-        ),
-
-        radial-gradient(
-            ellipse at 91% 78%,
-            rgba(5,6,6,.8) 0 2.5%,
-            transparent 3%
-        ),
-
-        repeating-linear-gradient(
-            168deg,
-            transparent 0 14px,
-            rgba(6,7,7,.16) 15px,
-            transparent 17px 31px
-        );
-
-    -webkit-background-clip: text;
-    background-clip: text;
-
-    opacity: .92;
-
-    pointer-events: none;
-}
-
-
-/* =========================================================
-   LIGHT DISTRESS FOR PAGE HEADINGS
-   ========================================================= */
 
 .weathered-soft {
-    position: relative;
-
-    display: inline-block;
-
     color: transparent;
 
     background:
-        radial-gradient(
-            ellipse at 25% 20%,
-            #cacac5,
-            transparent 46%
-        ),
-
-        radial-gradient(
-            ellipse at 72% 75%,
-            #90928f,
-            transparent 45%
-        ),
-
         linear-gradient(
             180deg,
-            #c9c9c4 0%,
-            #adaeaa 45%,
-            #898b88 72%,
-            #b5b6b1 100%
+            #d2d1cd 0%,
+            #bbbcb8 45%,
+            #9fa09d 72%,
+            #c3c3bf 100%
         );
 
-    -webkit-background-clip: text;
     background-clip: text;
+    -webkit-background-clip: text;
 
     text-shadow:
-        0 5px 18px rgba(0,0,0,.24);
+        0 1px 0 rgba(255,255,255,.04),
+        0 4px 15px rgba(0,0,0,.22);
 }
 
 
@@ -337,14 +208,14 @@ a {
     display: flex;
     align-items: center;
 
-    border-bottom: 1px solid var(--border-soft);
-
     background:
         linear-gradient(
             180deg,
-            rgba(5,6,6,.98),
-            rgba(7,8,8,.95)
+            rgba(6,7,7,.98),
+            rgba(7,8,8,.94)
         );
+
+    border-bottom: 1px solid var(--border-soft);
 
     backdrop-filter: blur(12px);
 }
@@ -362,9 +233,7 @@ a {
 
 .brand {
     padding: 0;
-
     border: 0;
-
     background: none;
 
     color: inherit;
@@ -375,10 +244,8 @@ a {
 .brand-title {
     display: block;
 
-    color: #aaa9a5;
-
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 21px;
+    font-weight: 700;
 
     letter-spacing: 5px;
 
@@ -390,10 +257,10 @@ a {
 
     margin-top: 7px;
 
-    color: #666865;
+    color: #777975;
 
     font-size: 7px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 6px;
 }
@@ -413,13 +280,12 @@ a {
     padding: 0 2px;
 
     border: 0;
-
     background: transparent;
 
-    color: #686a67;
+    color: #737572;
 
     font-size: 10px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 2.4px;
 
@@ -429,11 +295,11 @@ a {
 }
 
 .nav-button:hover {
-    color: #aaa9a5;
+    color: #bbbcb8;
 }
 
 .nav-button.active {
-    color: #b9b9b4;
+    color: #c8c8c4;
 }
 
 .nav-button.active::after {
@@ -447,12 +313,12 @@ a {
 
     height: 1px;
 
-    background: #a4a5a0;
+    background: #b9b9b5;
 }
 
 
 /* =========================================================
-   PAGE SYSTEM
+   PAGES
    ========================================================= */
 
 .page {
@@ -476,10 +342,10 @@ a {
 .eyebrow {
     margin-bottom: 16px;
 
-    color: #717370;
+    color: #777976;
 
     font-size: 9px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 6px;
 }
@@ -487,7 +353,7 @@ a {
 .page-title {
     margin: 0;
 
-    font-size: clamp(42px,5vw,70px);
+    font-size: clamp(42px, 5vw, 70px);
     font-weight: 700;
 
     letter-spacing: 1px;
@@ -500,7 +366,7 @@ a {
 
     margin: 19px 0 0;
 
-    color: #7b7d79;
+    color: #888a86;
 
     font-size: 13px;
     font-weight: 400;
@@ -510,7 +376,7 @@ a {
 
 
 /* =========================================================
-   WELCOME HERO
+   WELCOME
    ========================================================= */
 
 .hero {
@@ -524,11 +390,6 @@ a {
     overflow: hidden;
 }
 
-
-/*
-   Very restrained atmosphere behind the hero.
-*/
-
 .hero::before {
     content: "";
 
@@ -538,80 +399,16 @@ a {
     pointer-events: none;
 
     background:
-
         radial-gradient(
-            ellipse at 50% 49%,
-            rgba(130,132,127,.045),
-            transparent 39%
+            ellipse at center,
+            rgba(145,146,141,.055),
+            transparent 44%
         ),
-
         radial-gradient(
-            ellipse at 50% 100%,
-            rgba(120,122,117,.025),
-            transparent 43%
+            ellipse at 50% 88%,
+            rgba(115,116,111,.035),
+            transparent 40%
         );
-}
-
-
-/*
-   Fine dust / particulate layer.
-*/
-
-.hero::after {
-    content: "";
-
-    position: absolute;
-    inset: 0;
-
-    pointer-events: none;
-
-    opacity: .22;
-
-    background-image:
-
-        radial-gradient(
-            circle at 8% 21%,
-            rgba(185,185,178,.16) 0 1px,
-            transparent 1.3px
-        ),
-
-        radial-gradient(
-            circle at 23% 67%,
-            rgba(185,185,178,.1) 0 .8px,
-            transparent 1.2px
-        ),
-
-        radial-gradient(
-            circle at 38% 33%,
-            rgba(185,185,178,.12) 0 .7px,
-            transparent 1.1px
-        ),
-
-        radial-gradient(
-            circle at 54% 78%,
-            rgba(185,185,178,.12) 0 1px,
-            transparent 1.3px
-        ),
-
-        radial-gradient(
-            circle at 71% 29%,
-            rgba(185,185,178,.13) 0 .8px,
-            transparent 1.2px
-        ),
-
-        radial-gradient(
-            circle at 87% 64%,
-            rgba(185,185,178,.11) 0 1px,
-            transparent 1.3px
-        );
-
-    background-size:
-        193px 173px,
-        241px 219px,
-        307px 281px,
-        337px 311px,
-        277px 257px,
-        359px 331px;
 }
 
 .hero-main {
@@ -640,10 +437,10 @@ a {
 .hero-eyebrow {
     margin-bottom: 28px;
 
-    color: #777976;
+    color: #878985;
 
     font-size: 10px;
-    font-weight: 400;
+    font-weight: 500;
 
     letter-spacing: 12px;
 }
@@ -651,14 +448,14 @@ a {
 .hero-title {
     margin: 0;
 
-    font-size: clamp(76px,12vw,185px);
-    font-weight: 900;
+    font-size: clamp(76px, 12vw, 185px);
+    font-weight: 800;
 
     letter-spacing: 6px;
 
     line-height: .82;
 
-    transform: scaleY(1.03);
+    transform: scaleY(1.02);
 }
 
 .hero-motto {
@@ -670,9 +467,9 @@ a {
 
     gap: 27px;
 
-    color: #a2a39f;
+    color: #b1b2ae;
 
-    font-size: clamp(16px,2vw,27px);
+    font-size: clamp(16px, 2vw, 27px);
     font-weight: 300;
 
     letter-spacing: 14px;
@@ -689,7 +486,7 @@ a {
         linear-gradient(
             90deg,
             transparent,
-            #50524f
+            #5e605d
         );
 }
 
@@ -697,7 +494,7 @@ a {
     background:
         linear-gradient(
             90deg,
-            #50524f,
+            #5e605d,
             transparent
         );
 }
@@ -705,10 +502,10 @@ a {
 .hero-tagline {
     margin-top: 49px;
 
-    color: #676966;
+    color: #737572;
 
     font-size: 8px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 6px;
 }
@@ -727,19 +524,19 @@ a {
 
     padding: 17px 25px;
 
-    border: 1px solid #424440;
+    border: 1px solid #464844;
 
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,.016),
-            rgba(255,255,255,.004)
+            rgba(255,255,255,.018),
+            rgba(255,255,255,.006)
         );
 
-    color: #aaa9a5;
+    color: #bcbdb9;
 
     font-size: 9px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 2.4px;
 
@@ -750,19 +547,19 @@ a {
 }
 
 .hero-button.primary {
-    background: rgba(130,131,125,.07);
+    background: rgba(142,143,136,.09);
 
-    border-color: #4b4d49;
+    border-color: #52534f;
 
-    color: #b4b5b0;
+    color: #c9cac5;
 }
 
 .hero-button:hover {
-    background: rgba(160,161,154,.09);
+    background: rgba(180,181,174,.1);
 
-    border-color: #62645f;
+    border-color: #6a6c67;
 
-    color: #cecec9;
+    color: #deded9;
 }
 
 .hero-footer {
@@ -776,7 +573,7 @@ a {
     align-items: center;
     justify-content: center;
 
-    color: #5d5f5c;
+    color: #676966;
 
     text-align: center;
 
@@ -804,7 +601,7 @@ a {
 .stat-strip {
     display: grid;
 
-    grid-template-columns: repeat(3,150px);
+    grid-template-columns: repeat(3, 150px);
 
     gap: 12px;
 }
@@ -817,8 +614,8 @@ a {
     background:
         linear-gradient(
             145deg,
-            rgba(255,255,255,.018),
-            rgba(255,255,255,.002)
+            rgba(255,255,255,.022),
+            rgba(255,255,255,.004)
         );
 
     display: flex;
@@ -828,19 +625,19 @@ a {
 }
 
 .stat-value {
-    color: #b0b1ad;
+    color: #bfc0bc;
 
     font-size: 24px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .stat-label {
     margin-top: 9px;
 
-    color: #60625f;
+    color: #666865;
 
     font-size: 7px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 3px;
 }
@@ -861,9 +658,9 @@ a {
 
     border: 1px solid var(--border);
 
-    background: rgba(7,8,8,.68);
+    background: rgba(8,9,9,.68);
 
-    color: #92938f;
+    color: #a3a4a0;
 
     outline: none;
 }
@@ -873,14 +670,14 @@ a {
 }
 
 .search-box::placeholder {
-    color: #575956;
+    color: #5f615e;
 }
 
 .toolbar-select {
     padding: 0 14px;
 
     font-size: 9px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 1px;
 }
@@ -890,7 +687,7 @@ a {
 
     display: grid;
 
-    grid-template-columns: repeat(4,minmax(0,1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 
     gap: 12px;
 }
@@ -905,8 +702,8 @@ a {
     background:
         linear-gradient(
             145deg,
-            rgba(255,255,255,.018),
-            rgba(255,255,255,.002)
+            rgba(255,255,255,.021),
+            rgba(255,255,255,.003)
         );
 
     transition:
@@ -918,13 +715,13 @@ a {
 .member-card:hover {
     transform: translateY(-2px);
 
-    border-color: #484a46;
+    border-color: #494b47;
 
     background:
         linear-gradient(
             145deg,
-            rgba(255,255,255,.03),
-            rgba(255,255,255,.004)
+            rgba(255,255,255,.035),
+            rgba(255,255,255,.005)
         );
 }
 
@@ -941,23 +738,23 @@ a {
     width: 42px;
     height: 42px;
 
-    border: 1px solid #41433f;
+    border: 1px solid #444642;
     border-radius: 50%;
 
     display: grid;
     place-items: center;
 
-    color: #6e706d;
+    color: #777975;
 
     font-size: 16px;
     font-weight: 500;
 }
 
 .member-name {
-    color: #b3b4af;
+    color: #c2c3be;
 
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .member-status {
@@ -968,7 +765,7 @@ a {
 
     gap: 6px;
 
-    color: #6d6f6c;
+    color: #777976;
 
     font-size: 10px;
 }
@@ -979,7 +776,7 @@ a {
 
     border-radius: 50%;
 
-    background: #5e605d;
+    background: #666;
 }
 
 .status-dot.online {
@@ -1001,11 +798,11 @@ a {
 }
 
 .member-data-label {
-    color: #595b58;
+    color: #60625f;
 }
 
 .member-data-value {
-    color: #8d8f8b;
+    color: #999b97;
 }
 
 
@@ -1036,22 +833,22 @@ a {
 
     border: 1px solid var(--border);
 
-    background: rgba(7,8,8,.62);
+    background: rgba(8,9,9,.62);
 
-    color: #777976;
+    color: #858783;
 
     font-size: 8px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 1.5px;
 }
 
 .filter-button.active {
-    background: rgba(132,133,127,.09);
+    background: rgba(142,143,136,.11);
 
-    border-color: #4d4f4a;
+    border-color: #545650;
 
-    color: #adaeaa;
+    color: #c0c1bc;
 }
 
 .achievement-list {
@@ -1081,7 +878,7 @@ a {
 }
 
 .achievement-date {
-    color: #5f615e;
+    color: #666865;
 
     font-size: 8px;
 
@@ -1092,27 +889,27 @@ a {
     width: 42px;
     height: 42px;
 
-    border: 1px solid #3e403c;
+    border: 1px solid #41433f;
 
     display: grid;
     place-items: center;
 
-    color: #999a96;
+    color: #a7a8a3;
 
     font-size: 17px;
 }
 
 .achievement-title {
-    color: #adaeaa;
+    color: #bfc0bc;
 
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .achievement-type {
     margin-top: 7px;
 
-    color: #5f615e;
+    color: #666865;
 
     font-size: 9px;
 }
@@ -1122,10 +919,10 @@ a {
 }
 
 .achievement-score strong {
-    color: #adaeaa;
+    color: #bcbdb8;
 
     font-size: 21px;
-    font-weight: 400;
+    font-weight: 500;
 
     letter-spacing: 3px;
 }
@@ -1135,10 +932,10 @@ a {
 
     margin-top: 5px;
 
-    color: #5a5c59;
+    color: #626461;
 
     font-size: 7px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 3px;
 }
@@ -1161,7 +958,7 @@ a {
 .admin-sidebar {
     border: 1px solid var(--border);
 
-    background: rgba(7,8,8,.62);
+    background: rgba(8,9,9,.62);
 
     align-self: start;
 }
@@ -1177,18 +974,18 @@ a {
 
     background: transparent;
 
-    color: #6d6f6c;
+    color: #777976;
 
     text-align: left;
 
     font-size: 9px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .admin-menu-button.active {
-    background: rgba(130,131,125,.09);
+    background: rgba(137,138,131,.11);
 
-    color: #adaeaa;
+    color: #bfc0bb;
 }
 
 .admin-panel {
@@ -1199,7 +996,7 @@ a {
     background:
         linear-gradient(
             145deg,
-            rgba(255,255,255,.017),
+            rgba(255,255,255,.02),
             rgba(255,255,255,.002)
         );
 }
@@ -1217,10 +1014,10 @@ a {
 .admin-panel-title {
     margin: 0;
 
-    color: #adaeaa;
+    color: #bfc0bc;
 
     font-size: 20px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 1px;
 }
@@ -1228,7 +1025,7 @@ a {
 .admin-panel-description {
     margin-top: 7px;
 
-    color: #5f615e;
+    color: #666865;
 
     font-size: 9px;
 }
@@ -1238,14 +1035,14 @@ a {
 
     padding: 0 18px;
 
-    border: 1px solid #474944;
+    border: 1px solid #4b4d48;
 
-    background: rgba(132,133,127,.08);
+    background: rgba(142,143,136,.1);
 
-    color: #adaeaa;
+    color: #bfc0bb;
 
     font-size: 8px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 1px;
 }
@@ -1270,12 +1067,12 @@ a {
     border-top: 1px solid var(--border-soft);
     border-bottom: 1px solid var(--border-soft);
 
-    color: #5b5d5a;
+    color: #626461;
 
     text-align: left;
 
     font-size: 7px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 2px;
 }
@@ -1285,7 +1082,7 @@ a {
 
     border-bottom: 1px solid var(--border-soft);
 
-    color: #8b8d89;
+    color: #999b97;
 }
 
 .active-label {
@@ -1294,7 +1091,7 @@ a {
 
     gap: 7px;
 
-    color: #70a17b;
+    color: #74a980;
 }
 
 .active-label::before {
@@ -1324,10 +1121,10 @@ a {
     align-items: center;
     justify-content: center;
 
-    color: #4c4e4b;
+    color: #515350;
 
     font-size: 7px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 4px;
 
@@ -1339,7 +1136,7 @@ a {
    RESPONSIVE
    ========================================================= */
 
-@media (max-width:1100px) {
+@media (max-width: 1100px) {
 
     .members-heading-row {
         flex-direction: column;
@@ -1347,13 +1144,11 @@ a {
     }
 
     .members-grid {
-        grid-template-columns:
-            repeat(2,minmax(0,1fr));
+        grid-template-columns: repeat(2, minmax(0,1fr));
     }
 }
 
-
-@media (max-width:820px) {
+@media (max-width: 820px) {
 
     :root {
         --header-height: auto;
@@ -1366,11 +1161,7 @@ a {
     }
 
     .header-inner {
-        width:
-            min(
-                calc(100% - 36px),
-                var(--max-width)
-            );
+        width: min(calc(100% - 36px), var(--max-width));
 
         flex-direction: column;
         align-items: flex-start;
@@ -1400,11 +1191,7 @@ a {
 
     .hero-main,
     .page-inner {
-        width:
-            min(
-                calc(100% - 36px),
-                var(--max-width)
-            );
+        width: min(calc(100% - 36px), var(--max-width));
     }
 
     .hero-title {
@@ -1432,8 +1219,7 @@ a {
     .stat-strip {
         width: 100%;
 
-        grid-template-columns:
-            repeat(3,1fr);
+        grid-template-columns: repeat(3,1fr);
     }
 
     .member-toolbar {
@@ -1445,10 +1231,7 @@ a {
     }
 
     .achievement-row {
-        grid-template-columns:
-            90px
-            45px
-            1fr;
+        grid-template-columns: 90px 45px 1fr;
     }
 
     .achievement-score {
@@ -1470,14 +1253,11 @@ a {
     .admin-menu-button {
         min-width: 130px;
 
-        border-right:
-            1px solid
-            var(--border-soft);
+        border-right: 1px solid var(--border-soft);
     }
 }
 
-
-@media (max-width:560px) {
+@media (max-width: 560px) {
 
     .main-nav {
         justify-content: flex-start;
@@ -1517,9 +1297,7 @@ a {
     }
 
     .achievement-row {
-        grid-template-columns:
-            75px
-            1fr;
+        grid-template-columns: 75px 1fr;
 
         gap: 12px;
     }
@@ -1538,3 +1316,845 @@ a {
     }
 }
 </style>
+</head>
+
+
+<body>
+
+<header class="site-header">
+    <div class="header-inner">
+
+        <button
+            class="brand"
+            type="button"
+            onclick="showPage('welcome')"
+        >
+            <span class="brand-title weathered-soft">
+                FROSTBITE
+            </span>
+
+            <span class="brand-subtitle">
+                WE LEAD
+            </span>
+        </button>
+
+
+        <nav class="main-nav">
+
+            <button
+                class="nav-button active"
+                data-page="welcome"
+            >
+                WELCOME
+            </button>
+
+            <button
+                class="nav-button"
+                data-page="members"
+            >
+                MEMBERS
+            </button>
+
+            <button
+                class="nav-button"
+                data-page="achievements"
+            >
+                ACHIEVEMENTS
+            </button>
+
+            <button
+                class="nav-button"
+                data-page="admin"
+            >
+                ADMIN
+            </button>
+
+        </nav>
+
+    </div>
+</header>
+
+
+<!-- ======================================================
+     WELCOME
+     ====================================================== -->
+
+<main id="welcome" class="page active">
+
+    <section class="hero">
+
+        <div class="hero-main">
+
+            <div class="hero-content">
+
+                <div class="hero-eyebrow">
+                    THE FACTION
+                </div>
+
+                <h1 class="hero-title weathered">
+                    FROSTBITE
+                </h1>
+
+                <div class="hero-motto">
+                    WE LEAD
+                </div>
+
+                <div class="hero-tagline">
+                    PEOPLE · COMMITMENT · PROGRESSION · A STRONGER TOMORROW
+                </div>
+
+                <div class="hero-actions">
+
+                    <button class="hero-button primary">
+                        MEMBER ACCESS &nbsp; →
+                    </button>
+
+                    <button class="hero-button">
+                        REGISTER &nbsp; →
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-footer">
+            <div>
+                A FACTION BUILT ON LOYALTY, PROGRESSION AND RESPECT.
+                <br>
+                OUR HISTORY, WRITTEN AS IT HAPPENS.
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- ======================================================
+     MEMBERS
+     ====================================================== -->
+
+<main id="members" class="page">
+
+    <div class="page-inner">
+
+        <div class="members-heading-row">
+
+            <div>
+
+                <div class="eyebrow">
+                    THE FACTION
+                </div>
+
+                <h1 class="page-title weathered-soft">
+                    MEMBERS
+                </h1>
+
+                <p class="page-description">
+                    The people behind Frostbite. Individual journeys.
+                    A stronger faction.
+                </p>
+
+            </div>
+
+
+            <div class="stat-strip">
+
+                <div class="stat-box">
+                    <div class="stat-value">48</div>
+                    <div class="stat-label">MEMBERS</div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-value">92%</div>
+                    <div class="stat-label">ACTIVE (7D)</div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-value">1,845</div>
+                    <div class="stat-label">TOTAL LEVELS</div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="member-toolbar">
+
+            <input
+                id="memberSearch"
+                class="search-box"
+                type="search"
+                placeholder="Search members..."
+                autocomplete="off"
+            >
+
+            <select class="toolbar-select">
+                <option>ALL ROLES</option>
+                <option>MEMBER</option>
+                <option>ADMIN</option>
+            </select>
+
+            <select class="toolbar-select">
+                <option>SORT: NAME</option>
+                <option>SORT: LEVEL</option>
+                <option>SORT: STATUS</option>
+            </select>
+
+        </div>
+
+
+        <div id="membersGrid" class="members-grid"></div>
+
+    </div>
+
+</main>
+
+
+<!-- ======================================================
+     ACHIEVEMENTS
+     ====================================================== -->
+
+<main id="achievements" class="page">
+
+    <div class="page-inner">
+
+        <div class="eyebrow">
+            OUR HISTORY
+        </div>
+
+        <h1 class="page-title weathered-soft">
+            ACHIEVEMENTS
+        </h1>
+
+        <p class="page-description">
+            Personal milestones. Faction victories.
+            City events. All in one place.
+        </p>
+
+
+        <div class="achievement-toolbar">
+
+            <div class="filter-group">
+
+                <button class="filter-button active">
+                    ALL
+                </button>
+
+                <button class="filter-button">
+                    MEMBER
+                </button>
+
+                <button class="filter-button">
+                    WARS
+                </button>
+
+                <button class="filter-button">
+                    CHAINS
+                </button>
+
+                <button class="filter-button">
+                    CITY EVENTS
+                </button>
+
+            </div>
+
+            <select class="toolbar-select">
+                <option>LATEST FIRST</option>
+                <option>OLDEST FIRST</option>
+            </select>
+
+        </div>
+
+
+        <section class="achievement-list">
+
+            <article class="achievement-row">
+
+                <div class="achievement-date">
+                    30 SEP 2026
+                    <br>
+                    14:22 TCT
+                </div>
+
+                <div class="achievement-icon">★</div>
+
+                <div>
+                    <div class="achievement-title">
+                        St4TIC reached 165,000 Strength
+                    </div>
+
+                    <div class="achievement-type">
+                        Personal Milestone
+                    </div>
+                </div>
+
+                <div></div>
+
+            </article>
+
+
+            <article class="achievement-row">
+
+                <div class="achievement-date">
+                    30 SEP 2026
+                    <br>
+                    10:05 TCT
+                </div>
+
+                <div class="achievement-icon">∞</div>
+
+                <div>
+                    <div class="achievement-title">
+                        Faction Chain Milestone
+                    </div>
+
+                    <div class="achievement-type">
+                        Frostbite reached 3,000 hits
+                    </div>
+                </div>
+
+                <div></div>
+
+            </article>
+
+
+            <article class="achievement-row">
+
+                <div class="achievement-date">
+                    29 SEP 2026
+                    <br>
+                    21:17 TCT
+                </div>
+
+                <div class="achievement-icon">⚔</div>
+
+                <div>
+                    <div class="achievement-title">
+                        Ranked War Victory
+                    </div>
+
+                    <div class="achievement-type">
+                        Frostbite defeated The Retribution
+                    </div>
+                </div>
+
+                <div class="achievement-score">
+                    <strong>78 - 62</strong>
+                    <span>FINAL SCORE</span>
+                </div>
+
+            </article>
+
+
+            <article class="achievement-row">
+
+                <div class="achievement-date">
+                    28 SEP 2026
+                    <br>
+                    19:43 TCT
+                </div>
+
+                <div class="achievement-icon">◆</div>
+
+                <div>
+                    <div class="achievement-title">
+                        Westend upgraded Private Island
+                    </div>
+
+                    <div class="achievement-type">
+                        Personal Achievement
+                    </div>
+                </div>
+
+                <div></div>
+
+            </article>
+
+
+            <article class="achievement-row">
+
+                <div class="achievement-date">
+                    28 SEP 2026
+                    <br>
+                    12:11 TCT
+                </div>
+
+                <div class="achievement-icon">☆</div>
+
+                <div>
+                    <div class="achievement-title">
+                        Collete earned a new award
+                    </div>
+
+                    <div class="achievement-type">
+                        City Event
+                    </div>
+                </div>
+
+                <div></div>
+
+            </article>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<!-- ======================================================
+     ADMIN
+     ====================================================== -->
+
+<main id="admin" class="page">
+
+    <div class="page-inner">
+
+        <div class="eyebrow">
+            FROSTBITE
+        </div>
+
+        <h1 class="page-title weathered-soft">
+            ADMINISTRATION
+        </h1>
+
+        <p class="page-description">
+            Manage members, content and site data.
+        </p>
+
+
+        <div class="admin-layout">
+
+            <aside class="admin-sidebar">
+
+                <button class="admin-menu-button active">
+                    Members
+                </button>
+
+                <button class="admin-menu-button">
+                    Achievements
+                </button>
+
+                <button class="admin-menu-button">
+                    Events
+                </button>
+
+                <button class="admin-menu-button">
+                    Settings
+                </button>
+
+            </aside>
+
+
+            <section class="admin-panel">
+
+                <div class="admin-panel-header">
+
+                    <div>
+
+                        <h2 class="admin-panel-title">
+                            MEMBER MANAGEMENT
+                        </h2>
+
+                        <div class="admin-panel-description">
+                            Manually add and manage site access
+                            for Frostbite members.
+                        </div>
+
+                    </div>
+
+
+                    <button class="add-member-button">
+                        + ADD MEMBER
+                    </button>
+
+                </div>
+
+
+                <div class="admin-table-wrap">
+
+                    <table class="admin-table">
+
+                        <thead>
+                            <tr>
+                                <th>TORN ID</th>
+                                <th>NAME</th>
+                                <th>ROLE</th>
+                                <th>STATUS</th>
+                                <th>JOINED</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>123456</td>
+                                <td>St4TIC</td>
+                                <td>Admin</td>
+                                <td>
+                                    <span class="active-label">
+                                        Active
+                                    </span>
+                                </td>
+                                <td>20 Sep 2026</td>
+                                <td>EDIT</td>
+                            </tr>
+
+                            <tr>
+                                <td>234567</td>
+                                <td>Westend</td>
+                                <td>Member</td>
+                                <td>
+                                    <span class="active-label">
+                                        Active
+                                    </span>
+                                </td>
+                                <td>18 Sep 2026</td>
+                                <td>EDIT</td>
+                            </tr>
+
+                            <tr>
+                                <td>345678</td>
+                                <td>Hades91</td>
+                                <td>Member</td>
+                                <td>
+                                    <span class="active-label">
+                                        Active
+                                    </span>
+                                </td>
+                                <td>19 Sep 2026</td>
+                                <td>EDIT</td>
+                            </tr>
+
+                            <tr>
+                                <td>456789</td>
+                                <td>Collete</td>
+                                <td>Member</td>
+                                <td>
+                                    <span class="active-label">
+                                        Active
+                                    </span>
+                                </td>
+                                <td>21 Sep 2026</td>
+                                <td>EDIT</td>
+                            </tr>
+
+                            <tr>
+                                <td>567890</td>
+                                <td>Satomi</td>
+                                <td>Member</td>
+                                <td>
+                                    <span class="active-label">
+                                        Active
+                                    </span>
+                                </td>
+                                <td>22 Sep 2026</td>
+                                <td>EDIT</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<footer class="site-footer">
+    FROSTBITE · WE LEAD · 2026
+</footer>
+
+
+<script>
+/* =========================================================
+   PAGE NAVIGATION
+   ========================================================= */
+
+const pages =
+    document.querySelectorAll(".page");
+
+const navButtons =
+    document.querySelectorAll(".nav-button");
+
+
+function showPage(pageId) {
+
+    pages.forEach(page => {
+
+        page.classList.toggle(
+            "active",
+            page.id === pageId
+        );
+
+    });
+
+
+    navButtons.forEach(button => {
+
+        button.classList.toggle(
+            "active",
+            button.dataset.page === pageId
+        );
+
+    });
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+
+    history.replaceState(
+        null,
+        "",
+        "#" + pageId
+    );
+}
+
+
+navButtons.forEach(button => {
+
+    button.addEventListener(
+        "click",
+        () => showPage(button.dataset.page)
+    );
+
+});
+
+
+/* =========================================================
+   TEMPORARY MEMBER DATA
+   ========================================================= */
+
+const temporaryMembers = [
+    {
+        name: "St4TIC",
+        level: 100,
+        rank: "Distinguished",
+        status: "Online",
+        statusClass: "online",
+        action: "2 minutes ago"
+    },
+    {
+        name: "Westend",
+        level: 96,
+        rank: "Distinguished",
+        status: "Online",
+        statusClass: "online",
+        action: "5 minutes ago"
+    },
+    {
+        name: "Hades91",
+        level: 90,
+        rank: "Professional",
+        status: "Idle",
+        statusClass: "idle",
+        action: "24 minutes ago"
+    },
+    {
+        name: "Collete",
+        level: 88,
+        rank: "Professional",
+        status: "Offline",
+        statusClass: "",
+        action: "2 hours ago"
+    },
+    {
+        name: "Satomi",
+        level: 82,
+        rank: "Highly Distinguished",
+        status: "Online",
+        statusClass: "online",
+        action: "11 minutes ago"
+    },
+    {
+        name: "Razor",
+        level: 82,
+        rank: "Veteran",
+        status: "Offline",
+        statusClass: "",
+        action: "4 hours ago"
+    },
+    {
+        name: "Blizzard",
+        level: 79,
+        rank: "Experienced",
+        status: "Online",
+        statusClass: "online",
+        action: "16 minutes ago"
+    },
+    {
+        name: "FrostSoul",
+        level: 76,
+        rank: "Experienced",
+        status: "Offline",
+        statusClass: "",
+        action: "1 hour ago"
+    }
+];
+
+
+const membersGrid =
+    document.getElementById("membersGrid");
+
+
+function renderMembers(members) {
+
+    membersGrid.innerHTML =
+        members.map(member => `
+
+            <article
+                class="member-card"
+                data-name="${member.name.toLowerCase()}"
+            >
+
+                <div class="member-card-top">
+
+                    <div class="member-avatar">
+                        ${member.name.charAt(0)}
+                    </div>
+
+                    <div>
+
+                        <div class="member-name">
+                            ${member.name}
+                        </div>
+
+                        <div class="member-status">
+
+                            <span
+                                class="status-dot ${member.statusClass}"
+                            ></span>
+
+                            ${member.status}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="member-data">
+
+                    <span class="member-data-label">
+                        Level
+                    </span>
+
+                    <span class="member-data-value">
+                        ${member.level}
+                    </span>
+
+
+                    <span class="member-data-label">
+                        Rank
+                    </span>
+
+                    <span class="member-data-value">
+                        ${member.rank}
+                    </span>
+
+
+                    <span class="member-data-label">
+                        Last Action
+                    </span>
+
+                    <span class="member-data-value">
+                        ${member.action}
+                    </span>
+
+                </div>
+
+            </article>
+
+        `).join("");
+}
+
+
+renderMembers(temporaryMembers);
+
+
+/* =========================================================
+   MEMBER SEARCH
+   ========================================================= */
+
+const memberSearch =
+    document.getElementById("memberSearch");
+
+
+memberSearch.addEventListener("input", () => {
+
+    const search =
+        memberSearch.value
+            .trim()
+            .toLowerCase();
+
+
+    const filtered =
+        temporaryMembers.filter(member =>
+            member.name
+                .toLowerCase()
+                .includes(search)
+        );
+
+
+    renderMembers(filtered);
+
+});
+
+
+/* =========================================================
+   ACHIEVEMENT FILTER VISUAL STATE
+   ========================================================= */
+
+document
+    .querySelectorAll(".filter-button")
+    .forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            document
+                .querySelectorAll(".filter-button")
+                .forEach(item =>
+                    item.classList.remove("active")
+                );
+
+            button.classList.add("active");
+
+        });
+
+    });
+
+
+/* =========================================================
+   RESTORE PAGE FROM HASH
+   ========================================================= */
+
+const requestedPage =
+    window.location.hash.replace("#", "");
+
+
+if (
+    requestedPage &&
+    document.getElementById(requestedPage)
+) {
+    showPage(requestedPage);
+}
+</script>
+
+</body>
+</html>
