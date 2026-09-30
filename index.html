@@ -493,6 +493,12 @@ a {
 .market-art-stack{width:200px;display:flex;flex-direction:column;gap:10px;align-self:start}
 .market-stats-art{width:200px;aspect-ratio:2 / 1;border:1px solid #292d2a;background:rgba(4,5,5,.58);overflow:hidden}
 .market-stats-art img{width:100%;height:100%;object-fit:contain;display:block}
+.market-art.has-image,.market-stats-art{cursor:zoom-in}
+.market-image-lightbox{position:fixed;inset:0;z-index:1600;display:none;align-items:center;justify-content:center;padding:34px;background:rgba(0,0,0,.9);backdrop-filter:blur(5px)}
+.market-image-lightbox.open{display:flex}
+.market-image-lightbox-inner{position:relative;max-width:min(1100px,94vw);max-height:90vh;border:1px solid #454b47;background:#050707;padding:12px;box-shadow:0 28px 90px rgba(0,0,0,.8)}
+.market-image-lightbox img{display:block;max-width:calc(94vw - 24px);max-height:calc(90vh - 24px);width:auto;height:auto;object-fit:contain}
+.market-image-lightbox-close{position:absolute;right:-13px;top:-13px;width:30px;height:30px;border:1px solid #555c57;background:#090c0d;color:#b9bcb7;font-size:20px;line-height:26px;cursor:pointer}
 .market-item-category{color:#555a56;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
 .market-item-name{margin-top:8px;color:#c1c2bd;font-size:20px;font-weight:700;letter-spacing:1.2px}
 .market-rule{height:1px;margin:13px 0;background:linear-gradient(90deg,#3d423e,transparent)}
@@ -2144,6 +2150,13 @@ a {
 
 </main>
 
+<div id="marketImageLightbox" class="market-image-lightbox" aria-hidden="true">
+    <div class="market-image-lightbox-inner">
+        <button id="marketImageLightboxClose" class="market-image-lightbox-close" type="button" aria-label="Close image">×</button>
+        <img id="marketImageLightboxImage" alt="Market listing image">
+    </div>
+</div>
+
 <div id="marketListingModal" class="market-modal" aria-hidden="true">
     <form id="marketListingForm" class="market-form">
         <div class="market-form-head">
@@ -3534,8 +3547,8 @@ function marketCard(listing){
         : "";
     return `<article class="market-item" data-test-listing="1">
         <div class="market-art-stack">
-            <div class="market-art">${art}</div>
-            ${isEquipment&&listing.statsImage?`<div class="market-stats-art"><img src="${listing.statsImage}" alt="Equipment stats"></div>`:""}
+            <div class="market-art${listing.image?" has-image":""}"${listing.image?` data-market-image="${marketEscape(listing.image)}"`:""}>${art}</div>
+            ${isEquipment&&listing.statsImage?`<div class="market-stats-art" data-market-image="${marketEscape(listing.statsImage)}"><img src="${listing.statsImage}" alt="Equipment stats"></div>`:""}
         </div>
         <div>
             <div class="market-item-category">${marketEscape(listing.category)}</div>
@@ -3566,6 +3579,27 @@ function renderMarketListings(){
     marketCount.textContent=shown.length+" "+(shown.length===1?"ITEM":"ITEMS")+" LISTED";
     bindMarketDeleteButtons();
 }
+const marketImageLightbox=document.getElementById("marketImageLightbox");
+const marketImageLightboxImage=document.getElementById("marketImageLightboxImage");
+const marketImageLightboxClose=document.getElementById("marketImageLightboxClose");
+function closeMarketImageLightbox(){
+    marketImageLightbox?.classList.remove("open");
+    marketImageLightbox?.setAttribute("aria-hidden","true");
+    if(marketImageLightboxImage)marketImageLightboxImage.src="";
+}
+marketGrid?.addEventListener("click",e=>{
+    const target=e.target.closest("[data-market-image]");
+    if(!target)return;
+    const src=target.dataset.marketImage;
+    if(!src)return;
+    marketImageLightboxImage.src=src;
+    marketImageLightbox.classList.add("open");
+    marketImageLightbox.setAttribute("aria-hidden","false");
+});
+marketImageLightboxClose?.addEventListener("click",closeMarketImageLightbox);
+marketImageLightbox?.addEventListener("click",e=>{if(e.target===marketImageLightbox)closeMarketImageLightbox()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&marketImageLightbox?.classList.contains("open"))closeMarketImageLightbox()});
+
 function loadMarketTestListings(){
     renderMarketListings();
 }
