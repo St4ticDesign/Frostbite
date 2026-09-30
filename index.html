@@ -3472,10 +3472,10 @@ function marketViewer(){
 }
 function marketDeleteAllowed(listing){
     const viewer=marketViewer();
-    if(!viewer)return false;
-    const viewerId=Number(viewer.id);
-    const role=getMemberRole(viewer);
-    return viewerId===Number(listing.ownerId) || role==="owner" || role==="admin";
+    const viewerId=Number(viewer?.id||0);
+    const ownerId=Number(listing.ownerId||0);
+    const role=viewer?getMemberRole(viewer):"";
+    return viewerId===Number(FROSTBITE_OWNER_ID) || (ownerId>0 && viewerId===ownerId) || role==="owner" || role==="admin";
 }
 function deleteMarketTestListing(id){
     let listings=[];
