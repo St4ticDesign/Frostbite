@@ -2667,9 +2667,6 @@ function renderMembers(members) {
    LIVE MEMBER DATA
    ========================================================= */
 
-const memberSearch =
-    document.getElementById("memberSearch");
-
 const membersTotal =
     document.getElementById("membersTotal");
 
@@ -2884,62 +2881,7 @@ async function loadRegisteredMembers() {
     }
 }
 
-function applyMemberControls() {
-    const search = headerMemberSearch.value.trim().toLowerCase();
-    const role = headerRoleFilter.value;
-    const sort = headerSortFilter.value;
 
-    let filtered = temporaryMembers.filter(member => {
-        const matchesSearch = member.name.toLowerCase().includes(search);
-        const memberRole = getMemberRole(member).toUpperCase();
-        const matchesRole = role === "ALL ROLES" || memberRole === role;
-        return matchesSearch && matchesRole;
-    });
-
-    filtered.sort((a,b) => {
-        if (sort === "SORT: LEVEL") return Number(b.level || 0) - Number(a.level || 0);
-        if (sort === "SORT: STATUS") {
-            const order = {online:0,idle:1,offline:2};
-            return (order[a.statusClass] ?? 3) - (order[b.statusClass] ?? 3) || a.name.localeCompare(b.name);
-        }
-        return a.name.localeCompare(b.name);
-    });
-
-    renderMembers(filtered);
-}
-
-const headerMemberSearch = document.getElementById("headerMemberSearch");
-const headerRoleFilter = document.getElementById("headerRoleFilter");
-const headerSortFilter = document.getElementById("headerSortFilter");
-const memberRoleFilter = document.getElementById("memberRoleFilter");
-const memberSortFilter = document.getElementById("memberSortFilter");
-
-headerMemberSearch.addEventListener("input", () => {
-    memberSearch.value = headerMemberSearch.value;
-    applyMemberControls();
-});
-headerRoleFilter.addEventListener("change", () => {
-    memberRoleFilter.value = headerRoleFilter.value;
-    applyMemberControls();
-});
-headerSortFilter.addEventListener("change", () => {
-    memberSortFilter.value = headerSortFilter.value;
-    applyMemberControls();
-});
-memberSearch.addEventListener("input", () => {
-    headerMemberSearch.value = memberSearch.value;
-    applyMemberControls();
-});
-memberRoleFilter.addEventListener("change", () => {
-    headerRoleFilter.value = memberRoleFilter.value;
-    applyMemberControls();
-});
-memberSortFilter.addEventListener("change", () => {
-    headerSortFilter.value = memberSortFilter.value;
-    applyMemberControls();
-});
-
-renderMembers(temporaryMembers);
 
 
 /* =========================================================
