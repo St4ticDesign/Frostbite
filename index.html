@@ -504,7 +504,7 @@ a {
 .market-meta-value{display:block;color:#b8bab5;font-size:13px;font-weight:600;line-height:1.25}
 .market-action{margin-top:18px;width:100%;height:35px;border:1px solid #3c423e;background:rgba(255,255,255,.012);color:#888d88;font-size:10px;font-weight:700;letter-spacing:1.7px;display:flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
 .market-action:hover{border-color:#59605b;color:#c0c2bd;background:rgba(255,255,255,.025)}
-.market-edit{margin-top:8px;width:100%;height:32px;border:1px solid #3c423e;background:rgba(255,255,255,.012);color:#888d88;font-size:9px;font-weight:700;letter-spacing:1.5px}\n.market-edit:hover{border-color:#59605b;color:#c0c2bd;background:rgba(255,255,255,.025)}\n.market-delete{margin-top:8px;width:100%;height:32px;border:1px solid #47383a;background:rgba(100,25,30,.035);color:#916f71;font-size:9px;font-weight:700;letter-spacing:1.5px}
+.market-delete{margin-top:8px;width:100%;height:32px;border:1px solid #47383a;background:rgba(100,25,30,.035);color:#916f71;font-size:9px;font-weight:700;letter-spacing:1.5px}
 .market-delete:hover{border-color:#6a494c;color:#bf8f92;background:rgba(120,30,36,.07)}
 
 .market-head-actions{margin-top:26px;display:flex;justify-content:flex-end}
@@ -2250,7 +2250,7 @@ a {
         <div class="market-form-note">TEST MODE · Listings created here are stored only in this browser for now.</div>
         <div class="market-form-actions">
             <button id="marketListingCancel" type="button">CANCEL</button>
-            <button id="marketListingSubmit" class="primary" type="submit">CREATE LISTING</button>
+            <button class="primary" type="submit">CREATE LISTING</button>
         </div>
     </form>
 </div>
@@ -3468,7 +3468,7 @@ const marketAddButton=document.getElementById("marketAddButton");
 const marketListingModal=document.getElementById("marketListingModal");
 const marketListingForm=document.getElementById("marketListingForm");
 const marketListingClose=document.getElementById("marketListingClose");
-const marketListingCancel=document.getElementById("marketListingCancel");\nconst marketListingSubmit=document.getElementById("marketListingSubmit");
+const marketListingCancel=document.getElementById("marketListingCancel");
 const marketItemImage=document.getElementById("marketItemImage");
 const marketUploadBox=document.getElementById("marketUploadBox");
 const marketImageEditor=document.getElementById("marketImageEditor");
@@ -3494,7 +3494,7 @@ let marketCropX=0,marketCropY=0,marketCropScale=1;
 let marketCropDragging=false,marketCropStartX=0,marketCropStartY=0,marketCropOriginX=0,marketCropOriginY=0;
 let marketStatsImageData="",marketStatsSourceImage="";
 let marketStatsCropX=0,marketStatsCropY=0,marketStatsCropScale=1;
-let marketStatsDragging=false,marketStatsStartX=0,marketStatsStartY=0,marketStatsOriginX=0,marketStatsOriginY=0;\nlet marketEditingId=null;
+let marketStatsDragging=false,marketStatsStartX=0,marketStatsStartY=0,marketStatsOriginX=0,marketStatsOriginY=0;
 
 function marketMoney(value){return "$"+Number(value||0).toLocaleString("en-AU")}
 function marketEscape(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]))}
@@ -3550,7 +3550,7 @@ function marketCard(listing){
             </div>
             ${equipment}
             <a class="market-action" href="https://www.torn.com/displaycase.php#display/${marketEscape(listing.ownerId||FROSTBITE_OWNER_ID)}" target="_blank" rel="noopener noreferrer">VIEW ITEM →</a>
-            ${marketDeleteAllowed(listing)?`<button class="market-edit" type="button" data-listing-id="${marketEscape(listing.id)}">EDIT LISTING</button><button class="market-delete" type="button" data-listing-id="${marketEscape(listing.id)}">DELETE LISTING</button>`:""}
+            ${marketDeleteAllowed(listing)?`<button class="market-delete" type="button" data-listing-id="${marketEscape(listing.id)}">DELETE LISTING</button>`:""}
         </div>
     </article>`;
 }
@@ -3587,36 +3587,8 @@ function bindMarketDeleteButtons(){
         });
     });
 }
-function openMarketEdit(id){
-    const listing=getMarketTestListings().find(x=>String(x.id)===String(id));
-    if(!listing||!marketDeleteAllowed(listing))return;
-    marketEditingId=listing.id;
-    document.getElementById("marketItemName").value=listing.name||"";
-    marketItemCategory.value=listing.category||"DRUG";
-    document.getElementById("marketItemPrice").value=listing.price??"";
-    document.getElementById("marketItemStock").value=listing.stock??"";
-    document.getElementById("marketItemMarket").value=listing.market??"";
-    document.getElementById("marketItemSeller").value=listing.seller||"";
-    document.getElementById("marketItemDamage").value=listing.damage||"";
-    document.getElementById("marketItemAccuracy").value=listing.accuracy||"";
-    document.getElementById("marketItemArmour").value=listing.armour||"";
-    document.getElementById("marketItemQuality").value=listing.quality||"";
-    document.getElementById("marketItemBonuses").value=listing.bonuses||"";
-    marketImageData=listing.image||"";marketSourceImage=listing.image||"";
-    marketStatsImageData=listing.statsImage||"";marketStatsSourceImage=listing.statsImage||"";
-    updateMarketEquipmentFields();
-    marketListingSubmit.textContent="SAVE CHANGES";
-    marketListingModal.classList.add("open");marketListingModal.setAttribute("aria-hidden","false");
-}
-function bindMarketEditButtons(){
-    marketGrid?.querySelectorAll(".market-edit").forEach(button=>{
-        if(button.dataset.bound==="1")return;
-        button.dataset.bound="1";
-        button.addEventListener("click",()=>openMarketEdit(button.dataset.listingId));
-    });
-}
 function closeMarketListing(){marketListingModal.classList.remove("open");marketListingModal.setAttribute("aria-hidden","true")}
-marketAddButton?.addEventListener("click",()=>{marketEditingId=null;marketListingSubmit.textContent="CREATE LISTING";marketListingModal.classList.add("open");marketListingModal.setAttribute("aria-hidden","false")});
+marketAddButton?.addEventListener("click",()=>{marketListingModal.classList.add("open");marketListingModal.setAttribute("aria-hidden","false")});
 marketListingClose?.addEventListener("click",closeMarketListing);
 marketListingCancel?.addEventListener("click",closeMarketListing);
 marketListingModal?.addEventListener("click",e=>{if(e.target===marketListingModal)closeMarketListing()});
@@ -3740,14 +3712,14 @@ marketListingForm?.addEventListener("submit",e=>{
     marketImageData=marketSourceImage?renderMarketCrop():"";
     marketStatsImageData=marketStatsSourceImage?renderMarketStatsCrop():"";
     const listing={
-        id:marketEditingId||Date.now(),
+        id:Date.now(),
         name:document.getElementById("marketItemName").value.trim(),
         category:document.getElementById("marketItemCategory").value,
         price:Number(document.getElementById("marketItemPrice").value),
         stock:Number(document.getElementById("marketItemStock").value),
         market:Number(document.getElementById("marketItemMarket").value),
         seller:document.getElementById("marketItemSeller").value.trim(),
-        ownerId:Number((marketEditingId?getMarketTestListings().find(x=>String(x.id)===String(marketEditingId))?.ownerId:null)||marketViewer()?.id||FROSTBITE_OWNER_ID),
+        ownerId:Number(marketViewer()?.id||FROSTBITE_OWNER_ID),
         damage:document.getElementById("marketItemDamage").value.trim(),
         accuracy:document.getElementById("marketItemAccuracy").value.trim(),
         armour:document.getElementById("marketItemArmour").value.trim(),
@@ -3758,12 +3730,7 @@ marketListingForm?.addEventListener("submit",e=>{
     };
     let listings=[];
     try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
-    if(marketEditingId){
-        const idx=listings.findIndex(x=>String(x.id)===String(marketEditingId));
-        if(idx>=0)listings[idx]=listing;
-    }else{
-        listings.unshift(listing);
-    }
+    listings.unshift(listing);
     try{localStorage.setItem(MARKET_LISTINGS_KEY,JSON.stringify(listings))}catch{alert("This image is too large for browser test storage. Try a smaller image.");return}
     renderMarketListings();
     marketListingForm.reset();
