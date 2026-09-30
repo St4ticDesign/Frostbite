@@ -493,6 +493,11 @@ a {
 .market-art-stack{width:200px;display:flex;flex-direction:column;gap:10px;align-self:start}
 .market-stats-art{width:200px;aspect-ratio:2 / 1;border:1px solid #292d2a;background:rgba(4,5,5,.58);overflow:hidden}
 .market-stats-art img{width:100%;height:100%;object-fit:contain;display:block}
+.market-art img,.market-stats-art img{cursor:pointer}
+.market-photo-view{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;padding:30px;background:rgba(0,0,0,.92)}
+.market-photo-view.open{display:flex}
+.market-photo-view img{max-width:94vw;max-height:90vh;width:auto;height:auto;object-fit:contain;border:1px solid #444944;background:#050707}
+.market-photo-view button{position:fixed;top:22px;right:26px;width:38px;height:38px;border:1px solid #555b57;background:#090b0c;color:#c5c7c2;font-size:24px;cursor:pointer}
 .market-item-category{color:#555a56;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
 .market-item-name{margin-top:8px;color:#c1c2bd;font-size:20px;font-weight:700;letter-spacing:1.2px}
 .market-rule{height:1px;margin:13px 0;background:linear-gradient(90deg,#3d423e,transparent)}
@@ -504,7 +509,9 @@ a {
 .market-meta-value{display:block;color:#b8bab5;font-size:13px;font-weight:600;line-height:1.25}
 .market-action{margin-top:18px;width:100%;height:35px;border:1px solid #3c423e;background:rgba(255,255,255,.012);color:#888d88;font-size:10px;font-weight:700;letter-spacing:1.7px;display:flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
 .market-action:hover{border-color:#59605b;color:#c0c2bd;background:rgba(255,255,255,.025)}
-.market-edit{margin-top:8px;width:100%;height:32px;border:1px solid #3c423e;background:rgba(255,255,255,.012);color:#888d88;font-size:9px;font-weight:700;letter-spacing:1.5px}\n.market-edit:hover{border-color:#59605b;color:#c0c2bd;background:rgba(255,255,255,.025)}\n.market-delete{margin-top:8px;width:100%;height:32px;border:1px solid #47383a;background:rgba(100,25,30,.035);color:#916f71;font-size:9px;font-weight:700;letter-spacing:1.5px}
+.market-edit{margin-top:8px;width:100%;height:32px;border:1px solid #3c423e;background:rgba(255,255,255,.012);color:#888d88;font-size:9px;font-weight:700;letter-spacing:1.5px}
+.market-edit:hover{border-color:#59605b;color:#c0c2bd;background:rgba(255,255,255,.025)}
+.market-delete{margin-top:8px;width:100%;height:32px;border:1px solid #47383a;background:rgba(100,25,30,.035);color:#916f71;font-size:9px;font-weight:700;letter-spacing:1.5px}
 .market-delete:hover{border-color:#6a494c;color:#bf8f92;background:rgba(120,30,36,.07)}
 
 .market-head-actions{margin-top:26px;display:flex;justify-content:flex-end}
@@ -2144,6 +2151,11 @@ a {
 
 </main>
 
+<div id="marketPhotoView" class="market-photo-view" aria-hidden="true">
+    <button id="marketPhotoClose" type="button" aria-label="Close image">×</button>
+    <img id="marketPhotoImage" alt="Market listing image">
+</div>
+
 <div id="marketListingModal" class="market-modal" aria-hidden="true">
     <form id="marketListingForm" class="market-form">
         <div class="market-form-head">
@@ -3494,7 +3506,8 @@ let marketCropX=0,marketCropY=0,marketCropScale=1;
 let marketCropDragging=false,marketCropStartX=0,marketCropStartY=0,marketCropOriginX=0,marketCropOriginY=0;
 let marketStatsImageData="",marketStatsSourceImage="";
 let marketStatsCropX=0,marketStatsCropY=0,marketStatsCropScale=1;
-let marketStatsDragging=false,marketStatsStartX=0,marketStatsStartY=0,marketStatsOriginX=0,marketStatsOriginY=0;\nlet marketEditingId=null;
+let marketStatsDragging=false,marketStatsStartX=0,marketStatsStartY=0,marketStatsOriginX=0,marketStatsOriginY=0;
+let marketEditingId=null;
 
 function marketMoney(value){return "$"+Number(value||0).toLocaleString("en-AU")}
 function marketEscape(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]))}
@@ -3780,6 +3793,28 @@ marketListingForm?.addEventListener("submit",e=>{
 });
 
 loadMarketTestListings();
+
+const marketPhotoView=document.getElementById("marketPhotoView");
+const marketPhotoImage=document.getElementById("marketPhotoImage");
+const marketPhotoClose=document.getElementById("marketPhotoClose");
+
+marketGrid?.addEventListener("click",function(event){
+    const image=event.target;
+    if(!(image instanceof HTMLImageElement))return;
+    if(!image.closest(".market-art,.market-stats-art"))return;
+    marketPhotoImage.src=image.src;
+    marketPhotoView.classList.add("open");
+    marketPhotoView.setAttribute("aria-hidden","false");
+});
+
+function closeMarketPhoto(){
+    marketPhotoView.classList.remove("open");
+    marketPhotoView.setAttribute("aria-hidden","true");
+    marketPhotoImage.removeAttribute("src");
+}
+marketPhotoClose?.addEventListener("click",closeMarketPhoto);
+marketPhotoView?.addEventListener("click",function(event){if(event.target===marketPhotoView)closeMarketPhoto()});
+document.addEventListener("keydown",function(event){if(event.key==="Escape"&&marketPhotoView?.classList.contains("open"))closeMarketPhoto()});
 
 
 /* =========================================================
