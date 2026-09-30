@@ -2615,14 +2615,14 @@ async function verifyFrostbiteMember() {
     try {
         const keyInfo = await tornRequest("key/info", apiKey);
 
-        const keyType = keyInfo?.access?.type || "";
+        const keyType = keyInfo?.info?.access?.type || "";
 
         if (keyType && keyType.toLowerCase() !== "limited access") {
             throw new Error("Please use a Limited Access API key for Frostbite.");
         }
 
-        const playerId = Number(keyInfo?.user?.id);
-        const factionId = Number(keyInfo?.user?.faction_id);
+        const playerId = Number(keyInfo?.info?.user?.id);
+        const factionId = Number(keyInfo?.info?.user?.faction_id);
 
         if (!playerId) {
             throw new Error("Torn could not identify the owner of this API key.");
