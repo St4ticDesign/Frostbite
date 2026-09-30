@@ -474,20 +474,6 @@ a {
 }
 
 
-.header-inner{justify-content:flex-start}
-.brand{flex:0 0 auto}
-.main-nav{margin-left:auto}
-.header-member-tools{display:none;align-items:center;gap:6px;margin-left:28px;flex:0 0 auto}
-body.members-active .header-member-tools{display:flex}
-.header-member-search{display:none;width:150px;height:30px;padding:0 10px;border:1px solid #303431;background:rgba(6,7,7,.72);color:#9b9d99;outline:none;font-size:8px;letter-spacing:.3px;transition:border-color .18s ease,width .18s ease,background .18s ease}
-body.members-active .header-member-search{display:block}
-.header-member-search::placeholder{color:#505451}.header-member-search:focus{width:170px;border-color:#4a504c;background:rgba(9,11,11,.9)}
-.header-member-filter{height:30px;width:94px;padding:0 7px;border:1px solid #303431;background:rgba(6,7,7,.72);color:#7f837f;outline:none;font-size:6px;font-weight:650;letter-spacing:.65px}
-.header-member-filter:last-child{width:100px}
-.member-toolbar{display:none!important}.member-toolbar .search-box{display:none}
-@media(max-width:760px){body.members-active .header-member-tools{display:none}.member-toolbar{display:grid!important;grid-template-columns:1fr!important}.member-toolbar .search-box{display:block}.member-toolbar .toolbar-select{width:100%}}
-
-
 /* =========================================================
    WELCOME
    ========================================================= */
@@ -753,29 +739,6 @@ body.members-active .header-member-search{display:block}
     font-weight: 600;
 
     letter-spacing: 3px;
-}
-
-.member-toolbar {
-    margin-top: 40px;
-
-    display: grid;
-
-    grid-template-columns: 1fr 170px 170px;
-
-    gap: 12px;
-}
-
-.search-box,
-.toolbar-select {
-    height: 47px;
-
-    border: 1px solid var(--border);
-
-    background: rgba(8,9,9,.68);
-
-    color: #a3a4a0;
-
-    outline: none;
 }
 
 .search-box {
@@ -1886,23 +1849,7 @@ body.members-active .header-member-search{display:block}
                 ADMIN
             </button>
 
-        </nav>
-
-        <div class="header-member-tools">
-            <input id="headerMemberSearch" class="header-member-search" type="search" placeholder="Search members..." autocomplete="off" aria-label="Search members">
-            <select id="headerRoleFilter" class="header-member-filter" aria-label="Filter members by role">
-                <option>ALL ROLES</option>
-                <option>MEMBER</option>
-                <option>ADMIN</option>
-            </select>
-            <select id="headerSortFilter" class="header-member-filter" aria-label="Sort members">
-                <option>SORT: NAME</option>
-                <option>SORT: LEVEL</option>
-                <option>SORT: STATUS</option>
-            </select>
-        </div>
-
-    </div>
+        </nav></div>
 </header>
 
 
@@ -2011,35 +1958,7 @@ body.members-active .header-member-search{display:block}
 
             </div>
 
-        </div>
-
-
-        <div class="member-toolbar">
-
-            <input
-                id="memberSearch"
-                class="search-box"
-                type="search"
-                placeholder="Search members..."
-                autocomplete="off"
-            >
-
-            <select id="memberRoleFilter" class="toolbar-select">
-                <option>ALL ROLES</option>
-                <option>MEMBER</option>
-                <option>ADMIN</option>
-            </select>
-
-            <select id="memberSortFilter" class="toolbar-select">
-                <option>SORT: NAME</option>
-                <option>SORT: LEVEL</option>
-                <option>SORT: STATUS</option>
-            </select>
-
-        </div>
-
-
-        <div id="membersGrid" class="members-grid"></div>
+        </div><div id="membersGrid" class="members-grid"></div>
 
     </div>
 
@@ -2452,8 +2371,6 @@ const navButtons =
 
 
 function showPage(pageId) {
-
-    document.body.classList.toggle("members-active", pageId === "members");
 
     if (pageId === "admin") {
         const savedMember = getSavedMember();
