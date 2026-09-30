@@ -522,6 +522,16 @@ a {
 .market-field input:focus,.market-field select:focus{border-color:#59615b}
 .market-upload{min-height:105px;border:1px dashed #3d443f;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;color:#747a75;font-size:10px;line-height:1.6;cursor:pointer}
 .market-upload img{max-width:150px;max-height:100px;object-fit:contain}
+.market-image-editor{display:none;margin-top:10px}
+.market-image-editor.open{display:block}
+.market-crop-frame{position:relative;width:100%;max-width:520px;aspect-ratio:2/1;overflow:hidden;border:1px solid #444a45;background:#030505;cursor:grab;touch-action:none;user-select:none}
+.market-crop-frame.dragging{cursor:grabbing}
+.market-crop-frame img{position:absolute;left:50%;top:50%;max-width:none;max-height:none;pointer-events:none;transform-origin:center center}
+.market-crop-controls{max-width:520px;margin-top:10px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.market-crop-controls span{color:#747974;font-size:9px;font-weight:700;letter-spacing:1.2px}
+.market-crop-controls input[type="range"]{height:auto;padding:0;border:0;background:transparent}
+.market-crop-reset{height:30px!important;padding:0 12px!important}
+.market-crop-hint{max-width:520px;margin-top:7px;color:#555b56;font-size:8px;letter-spacing:.5px}
 .market-form-actions{margin-top:24px;display:flex;justify-content:flex-end;gap:10px}
 .market-form-actions button{height:39px;padding:0 18px;border:1px solid #424843;background:#0b0e0e;color:#9ea29d;font-size:9px;font-weight:700;letter-spacing:1.4px}
 .market-form-actions .primary{border-color:#5a625c;color:#c4c7c1}
@@ -2273,6 +2283,17 @@ a {
                     <span>CLICK TO CHOOSE IMAGE<br>JPG OR PNG · MAX 2 MB</span>
                 </label>
                 <input id="marketItemImage" type="file" accept="image/jpeg,image/png" hidden>
+                <div id="marketImageEditor" class="market-image-editor">
+                    <div id="marketCropFrame" class="market-crop-frame">
+                        <img id="marketCropImage" alt="Item crop preview">
+                    </div>
+                    <div class="market-crop-controls">
+                        <span>ZOOM</span>
+                        <input id="marketCropZoom" type="range" min="1" max="3" step="0.01" value="1">
+                        <button id="marketCropReset" class="market-crop-reset" type="button">RESET</button>
+                    </div>
+                    <div class="market-crop-hint">DRAG IMAGE TO REPOSITION · PREVIEW MATCHES MARKET CARD</div>
+                </div>
             </div>
         </div>
         <div class="market-form-note">TEST MODE · Listings created here are stored only in this browser for now.</div>
@@ -3499,12 +3520,20 @@ const marketListingClose=document.getElementById("marketListingClose");
 const marketListingCancel=document.getElementById("marketListingCancel");
 const marketItemImage=document.getElementById("marketItemImage");
 const marketUploadBox=document.getElementById("marketUploadBox");
+const marketImageEditor=document.getElementById("marketImageEditor");
+const marketCropFrame=document.getElementById("marketCropFrame");
+const marketCropImage=document.getElementById("marketCropImage");
+const marketCropZoom=document.getElementById("marketCropZoom");
+const marketCropReset=document.getElementById("marketCropReset");
 const marketItemCategory=document.getElementById("marketItemCategory");
 const marketEquipmentFields=document.getElementById("marketEquipmentFields");
 const marketGrid=document.querySelector(".market-grid");
 const marketCount=document.querySelector(".market-count");
 const MARKET_LISTINGS_KEY="frostbite_market_test_listings";
 let marketImageData="";
+let marketSourceImage="";
+let marketCropX=0,marketCropY=0,marketCropScale=1;
+let marketCropDragging=false,marketCropStartX=0,marketCropStartY=0,marketCropOriginX=0,marketCropOriginY=0;
 
 function marketMoney(value){return "$"+Number(value||0).toLocaleString("en-AU")}
 function marketEscape(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]))}
@@ -3592,17 +3621,66 @@ function updateMarketEquipmentFields(){
 }
 marketItemCategory?.addEventListener("change",updateMarketEquipmentFields);
 updateMarketEquipmentFields();
+function updateMarketCropPreview(){
+    if(!marketCropImage?.naturalWidth)return;
+    const fw=marketCropFrame.clientWidth,fh=marketCropFrame.clientHeight;
+    const base=Math.max(fw/marketCropImage.naturalWidth,fh/marketCropImage.naturalHeight);
+    const w=marketCropImage.naturalWidth*base*marketCropScale;
+    const h=marketCropImage.naturalHeight*base*marketCropScale;
+    marketCropImage.style.width=w+"px";
+    marketCropImage.style.height=h+"px";
+    marketCropImage.style.transform=`translate(calc(-50% + ${marketCropX}px),calc(-50% + ${marketCropY}px))`;
+}
+function resetMarketCrop(){
+    marketCropX=0;marketCropY=0;marketCropScale=1;
+    if(marketCropZoom)marketCropZoom.value="1";
+    updateMarketCropPreview();
+}
+function renderMarketCrop(){
+    if(!marketCropImage?.naturalWidth)return marketSourceImage;
+    const canvas=document.createElement("canvas");
+    canvas.width=600;canvas.height=300;
+    const ctx=canvas.getContext("2d");
+    const fw=marketCropFrame.clientWidth,fh=marketCropFrame.clientHeight;
+    const base=Math.max(fw/marketCropImage.naturalWidth,fh/marketCropImage.naturalHeight);
+    const displayW=marketCropImage.naturalWidth*base*marketCropScale;
+    const displayH=marketCropImage.naturalHeight*base*marketCropScale;
+    const sx=canvas.width/fw,sy=canvas.height/fh;
+    ctx.fillStyle="#030505";ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(marketCropImage,(fw/2-displayW/2+marketCropX)*sx,(fh/2-displayH/2+marketCropY)*sy,displayW*sx,displayH*sy);
+    return canvas.toDataURL("image/jpeg",0.9);
+}
 marketItemImage?.addEventListener("change",()=>{
     const file=marketItemImage.files?.[0];
-    if(!file){marketImageData="";return}
+    if(!file){marketImageData="";marketSourceImage="";marketImageEditor?.classList.remove("open");return}
     if(!["image/jpeg","image/png"].includes(file.type)){alert("Please choose a JPG or PNG image.");marketItemImage.value="";return}
     if(file.size>2*1024*1024){alert("Image must be 2 MB or smaller.");marketItemImage.value="";return}
     const reader=new FileReader();
-    reader.onload=()=>{marketImageData=String(reader.result||"");marketUploadBox.innerHTML=`<img src="${marketImageData}" alt="Item preview">`};
+    reader.onload=()=>{
+        marketSourceImage=String(reader.result||"");
+        marketCropImage.onload=()=>{resetMarketCrop();marketImageEditor.classList.add("open");marketUploadBox.innerHTML="<span>CHANGE IMAGE</span>";updateMarketCropPreview()};
+        marketCropImage.src=marketSourceImage;
+    };
     reader.readAsDataURL(file);
 });
+marketCropZoom?.addEventListener("input",()=>{marketCropScale=Number(marketCropZoom.value)||1;updateMarketCropPreview()});
+marketCropReset?.addEventListener("click",resetMarketCrop);
+marketCropFrame?.addEventListener("pointerdown",e=>{
+    marketCropDragging=true;marketCropFrame.classList.add("dragging");marketCropFrame.setPointerCapture(e.pointerId);
+    marketCropStartX=e.clientX;marketCropStartY=e.clientY;marketCropOriginX=marketCropX;marketCropOriginY=marketCropY;
+});
+marketCropFrame?.addEventListener("pointermove",e=>{
+    if(!marketCropDragging)return;
+    marketCropX=marketCropOriginX+(e.clientX-marketCropStartX);
+    marketCropY=marketCropOriginY+(e.clientY-marketCropStartY);
+    updateMarketCropPreview();
+});
+function stopMarketCropDrag(){marketCropDragging=false;marketCropFrame?.classList.remove("dragging")}
+marketCropFrame?.addEventListener("pointerup",stopMarketCropDrag);
+marketCropFrame?.addEventListener("pointercancel",stopMarketCropDrag);
 marketListingForm?.addEventListener("submit",e=>{
     e.preventDefault();
+    marketImageData=marketSourceImage?renderMarketCrop():"";
     const listing={
         id:Date.now(),
         name:document.getElementById("marketItemName").value.trim(),
@@ -3628,6 +3706,9 @@ marketListingForm?.addEventListener("submit",e=>{
     marketCount.textContent=(4+listings.length)+" ITEMS LISTED";
     marketListingForm.reset();
     marketImageData="";
+    marketSourceImage="";
+    marketImageEditor.classList.remove("open");
+    resetMarketCrop();
     marketUploadBox.innerHTML="<span>CLICK TO CHOOSE IMAGE<br>JPG OR PNG · MAX 2 MB</span>";
     closeMarketListing();
 });
