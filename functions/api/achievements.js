@@ -62,6 +62,16 @@ export async function onRequestGet(context) {
           details: "Verified public Bazaar revenue: $1,821,647,973; Trader threshold: over $1,000,000,000."
         });
       }
+
+      if (!achievements.some(a => a.badgeKey === "criminal")) {
+        achievements.push({
+          badgeKey: "criminal",
+          badgeTier: null,
+          earnedAt: verifiedAt,
+          source: "manual",
+          details: "Verified all-time OC analytics: 73 total scenarios, 63 successful scenarios."
+        });
+      }
     }
 
     return Response.json({ok:true,memberId:id,achievements});
