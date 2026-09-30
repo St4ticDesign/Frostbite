@@ -2135,77 +2135,7 @@ a {
             <div class="market-count">4 ITEMS LISTED</div>
         </div>
 
-        <section class="market-grid">
-
-            <article class="market-item">
-                <div class="market-art"><span class="market-art-mark">X</span></div>
-                <div>
-                    <div class="market-item-category">DRUG</div>
-                    <div class="market-item-name">XANAX</div>
-                    <div class="market-rule"></div>
-                    <div class="market-price-label">FROSTBITE MEMBER PRICE</div>
-                    <div class="market-price">$820,000</div>
-                    <div class="market-meta">
-                        <div><span class="market-meta-label">SELLER</span><span class="market-meta-value">St4TIC</span></div>
-                        <div><span class="market-meta-label">STOCK</span><span class="market-meta-value">128</span></div>
-                        <div><span class="market-meta-label">MARKET</span><span class="market-meta-value">$835,000</span></div>
-                    </div>
-                    <button class="market-action">VIEW ITEM →</button>
-                </div>
-            </article>
-
-            <article class="market-item">
-                <div class="market-art"><span class="market-art-mark">DP</span></div>
-                <div>
-                    <div class="market-item-category">SPECIAL</div>
-                    <div class="market-item-name">DONATOR PACK</div>
-                    <div class="market-rule"></div>
-                    <div class="market-price-label">FROSTBITE MEMBER PRICE</div>
-                    <div class="market-price">$23,450,000</div>
-                    <div class="market-meta">
-                        <div><span class="market-meta-label">SELLER</span><span class="market-meta-value">Westend</span></div>
-                        <div><span class="market-meta-label">STOCK</span><span class="market-meta-value">12</span></div>
-                        <div><span class="market-meta-label">MARKET</span><span class="market-meta-value">$23,900,000</span></div>
-                    </div>
-                    <button class="market-action">VIEW ITEM →</button>
-                </div>
-            </article>
-
-            <article class="market-item">
-                <div class="market-art"><span class="market-art-mark">E</span></div>
-                <div>
-                    <div class="market-item-category">BOOSTER</div>
-                    <div class="market-item-name">EROTIC DVD</div>
-                    <div class="market-rule"></div>
-                    <div class="market-price-label">FROSTBITE MEMBER PRICE</div>
-                    <div class="market-price">$3,850,000</div>
-                    <div class="market-meta">
-                        <div><span class="market-meta-label">SELLER</span><span class="market-meta-value">Frostbite Member</span></div>
-                        <div><span class="market-meta-label">STOCK</span><span class="market-meta-value">24</span></div>
-                        <div><span class="market-meta-label">MARKET</span><span class="market-meta-value">$3,940,000</span></div>
-                    </div>
-                    <button class="market-action">VIEW ITEM →</button>
-                </div>
-            </article>
-
-            <article class="market-item">
-                <div class="market-art"><span class="market-art-mark">◆</span></div>
-                <div>
-                    <div class="market-item-category">ARMOUR</div>
-                    <div class="market-item-name">TACTICAL VEST</div>
-                    <div class="market-rule"></div>
-                    <div class="market-price-label">FROSTBITE MEMBER PRICE</div>
-                    <div class="market-price">$1,250,000</div>
-                    <div class="market-meta">
-                        <div><span class="market-meta-label">SELLER</span><span class="market-meta-value">Frostbite Member</span></div>
-                        <div><span class="market-meta-label">STOCK</span><span class="market-meta-value">3</span></div>
-                        <div><span class="market-meta-label">MARKET</span><span class="market-meta-value">$1,340,000</span></div>
-                    </div>
-                    <button class="market-action">VIEW ITEM →</button>
-                </div>
-            </article>
-
-        </section>
+        <section class="market-grid"></section>
 
     </div>
 
@@ -3594,7 +3524,7 @@ function loadMarketTestListings(){
     let listings=[];
     try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
     listings.forEach(x=>marketGrid.insertAdjacentHTML("afterbegin",marketCard(x)));
-    marketCount.textContent=(4+listings.length)+" ITEMS LISTED";
+    marketCount.textContent=listings.length+" ITEMS LISTED";
     bindMarketDeleteButtons();
 }
 function bindMarketDeleteButtons(){
@@ -3606,7 +3536,7 @@ function bindMarketDeleteButtons(){
                 button.closest(".market-item")?.remove();
                 let listings=[];
                 try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
-                marketCount.textContent=(4+listings.length)+" ITEMS LISTED";
+                marketCount.textContent=listings.length+" ITEMS LISTED";
             }
         });
     });
@@ -3703,7 +3633,7 @@ marketListingForm?.addEventListener("submit",e=>{
     try{localStorage.setItem(MARKET_LISTINGS_KEY,JSON.stringify(listings))}catch{alert("This image is too large for browser test storage. Try a smaller image.");return}
     marketGrid.insertAdjacentHTML("afterbegin",marketCard(listing));
     bindMarketDeleteButtons();
-    marketCount.textContent=(4+listings.length)+" ITEMS LISTED";
+    marketCount.textContent=listings.length+" ITEMS LISTED";
     marketListingForm.reset();
     marketImageData="";
     marketSourceImage="";
