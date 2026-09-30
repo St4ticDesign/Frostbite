@@ -490,6 +490,9 @@ a {
 .market-item::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:#525753;opacity:.55}
 .market-art{width:200px;aspect-ratio:2 / 1;min-height:0;border:1px solid #292d2a;background:radial-gradient(circle at 50% 42%,rgba(124,184,211,.10),transparent 34%),rgba(4,5,5,.58);display:grid;place-items:center;align-self:start}
 .market-art-mark{color:#777d79;font-size:38px;font-weight:300;text-shadow:0 0 20px rgba(100,181,218,.13)}
+.market-art-stack{width:200px;display:flex;flex-direction:column;gap:10px;align-self:start}
+.market-stats-art{width:200px;aspect-ratio:2 / 1;border:1px solid #292d2a;background:rgba(4,5,5,.58);overflow:hidden}
+.market-stats-art img{width:100%;height:100%;object-fit:contain;display:block}
 .market-item-category{color:#555a56;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
 .market-item-name{margin-top:8px;color:#c1c2bd;font-size:20px;font-weight:700;letter-spacing:1.2px}
 .market-rule{height:1px;margin:13px 0;background:linear-gradient(90deg,#3d423e,transparent)}
@@ -552,7 +555,7 @@ a {
 @media(max-width:560px){.market-form-grid{grid-template-columns:1fr}.market-field.full{grid-column:auto}}
 
 @media(max-width:900px){.market-grid{grid-template-columns:1fr}.market-item{grid-template-columns:200px 1fr}}
-@media(max-width:560px){.market-bar{align-items:flex-start;flex-direction:column}.market-item{grid-template-columns:1fr}.market-art{width:100%;max-width:200px}}
+@media(max-width:560px){.market-bar{align-items:flex-start;flex-direction:column}.market-item{grid-template-columns:1fr}.market-art,.market-art-stack,.market-stats-art{width:100%;max-width:200px}}
 
 /* =========================================================
    WELCOME
@@ -2204,6 +2207,24 @@ a {
                         <label for="marketItemBonuses">BONUSES / SPECIAL EFFECTS</label>
                         <textarea id="marketItemBonuses" maxlength="240" placeholder="e.g. 12% Eviscerate · 8% Rage"></textarea>
                     </div>
+                    <div class="market-field full">
+                        <label>STATS IMAGE · OPTIONAL · JPG / PNG</label>
+                        <label id="marketStatsUploadBox" class="market-upload" for="marketStatsImage">
+                            <span>CLICK TO CHOOSE STATS IMAGE<br>JPG OR PNG · MAX 2 MB</span>
+                        </label>
+                        <input id="marketStatsImage" type="file" accept="image/jpeg,image/png" hidden>
+                        <div id="marketStatsImageEditor" class="market-image-editor">
+                            <div id="marketStatsCropFrame" class="market-crop-frame">
+                                <img id="marketStatsCropImage" alt="Stats crop preview">
+                            </div>
+                            <div class="market-crop-controls">
+                                <span>ZOOM</span>
+                                <input id="marketStatsCropZoom" type="range" min="1" max="3" step="0.01" value="1">
+                                <button id="marketStatsCropReset" class="market-crop-reset" type="button">RESET</button>
+                            </div>
+                            <div class="market-crop-hint">DRAG IMAGE TO REPOSITION · PREVIEW MATCHES STATS BOX</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -3455,6 +3476,13 @@ const marketCropFrame=document.getElementById("marketCropFrame");
 const marketCropImage=document.getElementById("marketCropImage");
 const marketCropZoom=document.getElementById("marketCropZoom");
 const marketCropReset=document.getElementById("marketCropReset");
+const marketStatsImage=document.getElementById("marketStatsImage");
+const marketStatsUploadBox=document.getElementById("marketStatsUploadBox");
+const marketStatsImageEditor=document.getElementById("marketStatsImageEditor");
+const marketStatsCropFrame=document.getElementById("marketStatsCropFrame");
+const marketStatsCropImage=document.getElementById("marketStatsCropImage");
+const marketStatsCropZoom=document.getElementById("marketStatsCropZoom");
+const marketStatsCropReset=document.getElementById("marketStatsCropReset");
 const marketItemCategory=document.getElementById("marketItemCategory");
 const marketEquipmentFields=document.getElementById("marketEquipmentFields");
 const marketGrid=document.querySelector(".market-grid");
@@ -3464,6 +3492,9 @@ let marketImageData="";
 let marketSourceImage="";
 let marketCropX=0,marketCropY=0,marketCropScale=1;
 let marketCropDragging=false,marketCropStartX=0,marketCropStartY=0,marketCropOriginX=0,marketCropOriginY=0;
+let marketStatsImageData="",marketStatsSourceImage="";
+let marketStatsCropX=0,marketStatsCropY=0,marketStatsCropScale=1;
+let marketStatsDragging=false,marketStatsStartX=0,marketStatsStartY=0,marketStatsOriginX=0,marketStatsOriginY=0;
 
 function marketMoney(value){return "$"+Number(value||0).toLocaleString("en-AU")}
 function marketEscape(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]))}
@@ -3502,7 +3533,10 @@ function marketCard(listing){
         ? `<div class="market-equipment-card"><div class="market-equipment-card-title">EQUIPMENT</div>${stats.length?`<div class="market-equipment-stats">${stats.map(s=>`<div class="market-equipment-stat"><span>${s[0]}</span><strong>${marketEscape(s[1])}</strong></div>`).join("")}</div>`:""}${listing.bonuses?`<div class="market-bonus">${marketEscape(listing.bonuses)}</div>`:""}</div>`
         : "";
     return `<article class="market-item" data-test-listing="1">
-        <div class="market-art">${art}</div>
+        <div class="market-art-stack">
+            <div class="market-art">${art}</div>
+            ${isEquipment&&listing.statsImage?`<div class="market-stats-art"><img src="${listing.statsImage}" alt="Equipment stats"></div>`:""}
+        </div>
         <div>
             <div class="market-item-category">${marketEscape(listing.category)}</div>
             <div class="market-item-name">${marketEscape(listing.name)}</div>
@@ -3592,6 +3626,59 @@ function renderMarketCrop(){
     ctx.drawImage(marketCropImage,(fw/2-displayW/2+marketCropX)*sx,(fh/2-displayH/2+marketCropY)*sy,displayW*sx,displayH*sy);
     return canvas.toDataURL("image/jpeg",0.9);
 }
+function updateMarketStatsCropPreview(){
+    if(!marketStatsCropImage?.naturalWidth)return;
+    const fw=marketStatsCropFrame.clientWidth,fh=marketStatsCropFrame.clientHeight;
+    const base=Math.max(fw/marketStatsCropImage.naturalWidth,fh/marketStatsCropImage.naturalHeight);
+    const w=marketStatsCropImage.naturalWidth*base*marketStatsCropScale;
+    const h=marketStatsCropImage.naturalHeight*base*marketStatsCropScale;
+    marketStatsCropImage.style.width=w+"px";marketStatsCropImage.style.height=h+"px";
+    marketStatsCropImage.style.transform=`translate(calc(-50% + ${marketStatsCropX}px),calc(-50% + ${marketStatsCropY}px))`;
+}
+function resetMarketStatsCrop(){
+    marketStatsCropX=0;marketStatsCropY=0;marketStatsCropScale=1;
+    if(marketStatsCropZoom)marketStatsCropZoom.value="1";
+    updateMarketStatsCropPreview();
+}
+function renderMarketStatsCrop(){
+    if(!marketStatsCropImage?.naturalWidth)return marketStatsSourceImage;
+    const canvas=document.createElement("canvas");canvas.width=600;canvas.height=300;
+    const ctx=canvas.getContext("2d"),fw=marketStatsCropFrame.clientWidth,fh=marketStatsCropFrame.clientHeight;
+    const base=Math.max(fw/marketStatsCropImage.naturalWidth,fh/marketStatsCropImage.naturalHeight);
+    const dw=marketStatsCropImage.naturalWidth*base*marketStatsCropScale,dh=marketStatsCropImage.naturalHeight*base*marketStatsCropScale;
+    const sx=canvas.width/fw,sy=canvas.height/fh;
+    ctx.fillStyle="#030505";ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(marketStatsCropImage,(fw/2-dw/2+marketStatsCropX)*sx,(fh/2-dh/2+marketStatsCropY)*sy,dw*sx,dh*sy);
+    return canvas.toDataURL("image/jpeg",0.9);
+}
+marketStatsImage?.addEventListener("change",()=>{
+    const file=marketStatsImage.files?.[0];
+    if(!file){marketStatsImageData="";marketStatsSourceImage="";marketStatsImageEditor?.classList.remove("open");return}
+    if(!["image/jpeg","image/png"].includes(file.type)){alert("Please choose a JPG or PNG stats image.");marketStatsImage.value="";return}
+    if(file.size>2*1024*1024){alert("Stats image must be 2 MB or smaller.");marketStatsImage.value="";return}
+    const reader=new FileReader();
+    reader.onload=()=>{
+        marketStatsSourceImage=String(reader.result||"");
+        marketStatsCropImage.onload=()=>{resetMarketStatsCrop();marketStatsImageEditor.classList.add("open");marketStatsUploadBox.innerHTML="<span>CHANGE STATS IMAGE</span>";updateMarketStatsCropPreview()};
+        marketStatsCropImage.src=marketStatsSourceImage;
+    };
+    reader.readAsDataURL(file);
+});
+marketStatsCropZoom?.addEventListener("input",()=>{marketStatsCropScale=Number(marketStatsCropZoom.value)||1;updateMarketStatsCropPreview()});
+marketStatsCropReset?.addEventListener("click",resetMarketStatsCrop);
+marketStatsCropFrame?.addEventListener("pointerdown",e=>{
+    marketStatsDragging=true;marketStatsCropFrame.classList.add("dragging");marketStatsCropFrame.setPointerCapture(e.pointerId);
+    marketStatsStartX=e.clientX;marketStatsStartY=e.clientY;marketStatsOriginX=marketStatsCropX;marketStatsOriginY=marketStatsCropY;
+});
+marketStatsCropFrame?.addEventListener("pointermove",e=>{
+    if(!marketStatsDragging)return;
+    marketStatsCropX=marketStatsOriginX+(e.clientX-marketStatsStartX);marketStatsCropY=marketStatsOriginY+(e.clientY-marketStatsStartY);
+    updateMarketStatsCropPreview();
+});
+function stopMarketStatsDrag(){marketStatsDragging=false;marketStatsCropFrame?.classList.remove("dragging")}
+marketStatsCropFrame?.addEventListener("pointerup",stopMarketStatsDrag);
+marketStatsCropFrame?.addEventListener("pointercancel",stopMarketStatsDrag);
+
 marketItemImage?.addEventListener("change",()=>{
     const file=marketItemImage.files?.[0];
     if(!file){marketImageData="";marketSourceImage="";marketImageEditor?.classList.remove("open");return}
@@ -3623,6 +3710,7 @@ marketCropFrame?.addEventListener("pointercancel",stopMarketCropDrag);
 marketListingForm?.addEventListener("submit",e=>{
     e.preventDefault();
     marketImageData=marketSourceImage?renderMarketCrop():"";
+    marketStatsImageData=marketStatsSourceImage?renderMarketStatsCrop():"";
     const listing={
         id:Date.now(),
         name:document.getElementById("marketItemName").value.trim(),
@@ -3637,7 +3725,8 @@ marketListingForm?.addEventListener("submit",e=>{
         armour:document.getElementById("marketItemArmour").value.trim(),
         quality:document.getElementById("marketItemQuality").value.trim(),
         bonuses:document.getElementById("marketItemBonuses").value.trim(),
-        image:marketImageData
+        image:marketImageData,
+        statsImage:["WEAPON","ARMOUR"].includes(document.getElementById("marketItemCategory").value)?marketStatsImageData:""
     };
     let listings=[];
     try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
@@ -3650,6 +3739,10 @@ marketListingForm?.addEventListener("submit",e=>{
     marketImageEditor.classList.remove("open");
     resetMarketCrop();
     marketUploadBox.innerHTML="<span>CLICK TO CHOOSE IMAGE<br>JPG OR PNG · MAX 2 MB</span>";
+    marketStatsImageData="";marketStatsSourceImage="";
+    marketStatsImageEditor.classList.remove("open");
+    resetMarketStatsCrop();
+    marketStatsUploadBox.innerHTML="<span>CLICK TO CHOOSE STATS IMAGE<br>JPG OR PNG · MAX 2 MB</span>";
     closeMarketListing();
 });
 
