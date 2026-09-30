@@ -1382,11 +1382,12 @@ a {
 .admin-table {
     width: 100%;
 
-    min-width: 720px;
+    min-width: 620px;
 
     border-collapse: collapse;
+    table-layout: fixed;
 
-    font-size: 9px;
+    font-size: 12px;
 }
 
 .admin-table th {
@@ -1399,14 +1400,20 @@ a {
 
     text-align: left;
 
-    font-size: 7px;
+    font-size: 9px;
     font-weight: 600;
 
     letter-spacing: 2px;
 }
 
+.admin-table th,
 .admin-table td {
-    padding: 14px 12px;
+    width: 20%;
+}
+
+.admin-table td {
+    padding: 17px 12px;
+    font-size: 11px;
 
     border-bottom: 1px solid var(--border-soft);
 
@@ -2274,8 +2281,7 @@ a {
                     </div>
 
                     <div class="admin-role-copy">
-                        St4TIC is the permanent Frostbite owner. Registered members
-                        begin as Member. Select a member below to grant or remove Admin.
+                        Registered members begin as Member. Management can grant or remove Admin access.
                     </div>
 
                     <div class="admin-role-controls">
@@ -2301,7 +2307,6 @@ a {
                                 <th>ROLE</th>
                                 <th>STATUS</th>
                                 <th>JOINED</th>
-                                <th>ACTIONS</th>
                             </tr>
                         </thead>
 
@@ -3299,6 +3304,16 @@ function getRoleManagedMembers() {
     );
 }
 
+function formatAdminJoinedDate(value) {
+    if (!value) return "—";
+    const numeric = Number(value);
+    const date = Number.isFinite(numeric)
+        ? new Date(numeric < 1000000000000 ? numeric * 1000 : numeric)
+        : new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+    return date.toLocaleDateString("en-AU", {day:"2-digit",month:"2-digit",year:"numeric"});
+}
+
 function renderAdminRoleManager() {
     if (!adminMembersTableBody || !adminMemberSelect) return;
 
@@ -3318,14 +3333,13 @@ function renderAdminRoleManager() {
                 <tr>
                     <td>${member.id}</td>
                     <td class="${getNameRoleClass(member)}">${member.name}</td>
-                    <td class="${roleClass}">${roleLabel(role)}</td>
+                    <td class="${roleClass}">${Number(member.id)===3982553 ? "Management" : roleLabel(role)}</td>
                     <td>
                         <span class="active-label">
-                            ${role === "owner" ? "Protected" : "Active"}
+                            ${Number(member.id)===3982553 ? "Admin" : role === "owner" ? "Owner" : role === "admin" ? "Admin" : "Member"}
                         </span>
                     </td>
-                    <td>Registered</td>
-                    <td>${role === "owner" ? "PERMANENT" : role === "admin" ? "ADMIN" : "MEMBER"}</td>
+                    <td>${formatAdminJoinedDate(member.registeredAt)}</td>
                 </tr>
             `;
         }).join("");
