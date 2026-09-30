@@ -2125,14 +2125,14 @@ a {
 
         <div class="market-bar">
             <div class="market-categories">
-                <button class="market-category active">ALL ITEMS</button>
-                <button class="market-category">DRUGS</button>
-                <button class="market-category">WEAPONS</button>
-                <button class="market-category">ARMOUR</button>
-                <button class="market-category">BOOSTERS</button>
-                <button class="market-category">SPECIAL</button>
+                <button class="market-category active" data-market-filter="ALL">ALL ITEMS</button>
+                <button class="market-category" data-market-filter="DRUG">DRUGS</button>
+                <button class="market-category" data-market-filter="WEAPON">WEAPONS</button>
+                <button class="market-category" data-market-filter="ARMOUR">ARMOUR</button>
+                <button class="market-category" data-market-filter="BOOSTER">BOOSTERS</button>
+                <button class="market-category" data-market-filter="SPECIAL">SPECIAL</button>
             </div>
-            <div class="market-count">4 ITEMS LISTED</div>
+            <div class="market-count">0 ITEMS LISTED</div>
         </div>
 
         <section class="market-grid"></section>
@@ -3520,23 +3520,35 @@ function marketCard(listing){
         </div>
     </article>`;
 }
-function loadMarketTestListings(){
-    let listings=[];
-    try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
-    listings.forEach(x=>marketGrid.insertAdjacentHTML("afterbegin",marketCard(x)));
-    marketCount.textContent=listings.length+" ITEMS LISTED";
+let marketActiveFilter="ALL";
+function getMarketTestListings(){
+    try{return JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{return []}
+}
+function renderMarketListings(){
+    const listings=getMarketTestListings();
+    const shown=marketActiveFilter==="ALL"?listings:listings.filter(x=>String(x.category||"").toUpperCase()===marketActiveFilter);
+    marketGrid.innerHTML="";
+    shown.forEach(x=>marketGrid.insertAdjacentHTML("beforeend",marketCard(x)));
+    marketCount.textContent=shown.length+" "+(shown.length===1?"ITEM":"ITEMS")+" LISTED";
     bindMarketDeleteButtons();
 }
+function loadMarketTestListings(){
+    renderMarketListings();
+}
+document.querySelectorAll("[data-market-filter]").forEach(button=>{
+    button.addEventListener("click",()=>{
+        marketActiveFilter=button.dataset.marketFilter||"ALL";
+        document.querySelectorAll("[data-market-filter]").forEach(x=>x.classList.toggle("active",x===button));
+        renderMarketListings();
+    });
+});
 function bindMarketDeleteButtons(){
     marketGrid?.querySelectorAll(".market-delete").forEach(button=>{
         if(button.dataset.bound==="1")return;
         button.dataset.bound="1";
         button.addEventListener("click",()=>{
             if(deleteMarketTestListing(button.dataset.listingId)){
-                button.closest(".market-item")?.remove();
-                let listings=[];
-                try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
-                marketCount.textContent=listings.length+" ITEMS LISTED";
+                renderMarketListings();
             }
         });
     });
@@ -3631,9 +3643,7 @@ marketListingForm?.addEventListener("submit",e=>{
     try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
     listings.unshift(listing);
     try{localStorage.setItem(MARKET_LISTINGS_KEY,JSON.stringify(listings))}catch{alert("This image is too large for browser test storage. Try a smaller image.");return}
-    marketGrid.insertAdjacentHTML("afterbegin",marketCard(listing));
-    bindMarketDeleteButtons();
-    marketCount.textContent=listings.length+" ITEMS LISTED";
+    renderMarketListings();
     marketListingForm.reset();
     marketImageData="";
     marketSourceImage="";
