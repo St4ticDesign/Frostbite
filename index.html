@@ -400,11 +400,41 @@ a {
 }
 
 .page-inner {
+    position: relative;
+
     width: min(calc(100% - 64px), var(--max-width));
 
     margin: auto;
 
     padding: 64px 0 100px;
+
+    isolation: isolate;
+}
+
+.page-inner::before {
+    content: "";
+
+    position: absolute;
+    z-index: -1;
+
+    inset: 18px -18px 34px;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 34%,
+            rgba(92, 178, 220, .055) 0%,
+            rgba(66, 146, 188, .030) 36%,
+            rgba(37, 100, 132, .014) 58%,
+            transparent 76%
+        );
+
+    box-shadow:
+        0 0 70px rgba(79, 168, 214, .025),
+        inset 0 0 80px rgba(80, 170, 215, .012);
+
+    filter: blur(8px);
 }
 
 .eyebrow {
@@ -817,6 +847,126 @@ a {
     font-size: 16px;
     font-weight: 500;
 }
+
+
+.owner-name {
+    color: #d99a62 !important;
+
+    text-shadow:
+        0 0 5px rgba(218, 137, 67, .26),
+        0 0 11px rgba(218, 137, 67, .10);
+}
+
+.admin-name {
+    color: #91bed7 !important;
+
+    text-shadow:
+        0 0 5px rgba(103, 183, 226, .23),
+        0 0 11px rgba(103, 183, 226, .09);
+}
+
+.role-owner {
+    color: #c58a57;
+}
+
+.role-admin {
+    color: #82abc2;
+}
+
+.role-member {
+    color: var(--text-muted);
+}
+
+.admin-role-box {
+    margin: 22px 0 26px;
+    padding: 18px;
+
+    border: 1px solid var(--border);
+
+    background: rgba(255,255,255,.012);
+}
+
+.admin-role-title {
+    color: #bdbdb8;
+
+    font-size: 9px;
+    font-weight: 600;
+
+    letter-spacing: 2px;
+}
+
+.admin-role-copy {
+    margin-top: 8px;
+
+    color: #747672;
+
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.admin-role-controls {
+    display: grid;
+
+    grid-template-columns: 1fr auto;
+
+    gap: 10px;
+
+    margin-top: 15px;
+}
+
+.admin-role-select {
+    min-height: 42px;
+
+    padding: 0 12px;
+
+    border: 1px solid var(--border);
+
+    background: #080909;
+
+    color: #aaa9a4;
+
+    outline: none;
+
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.admin-role-button {
+    min-height: 42px;
+
+    padding: 0 18px;
+
+    border: 1px solid #4b4d49;
+
+    background: rgba(255,255,255,.02);
+
+    color: #aaa9a4;
+
+    font-size: 8px;
+    font-weight: 600;
+
+    letter-spacing: 1px;
+}
+
+.admin-role-button:hover {
+    border-color: #62645f;
+    color: #d0d0cb;
+}
+
+.admin-role-status {
+    min-height: 18px;
+
+    margin-top: 10px;
+
+    color: #747672;
+
+    font-size: 9px;
+}
+
+.admin-role-status.success {
+    color: #82abc2;
+}
+
 
 .member-name {
     color: #c2c3be;
@@ -2047,6 +2197,29 @@ a {
                 </div>
 
 
+                
+                <div class="admin-role-box">
+                    <div class="admin-role-title">
+                        ADMIN ROLES
+                    </div>
+
+                    <div class="admin-role-copy">
+                        St4TIC is the permanent Frostbite owner. Registered members
+                        begin as Member. Select a member below to grant or remove Admin.
+                    </div>
+
+                    <div class="admin-role-controls">
+                        <select id="adminMemberSelect" class="admin-role-select"></select>
+
+                        <button id="toggleAdminRoleButton" class="admin-role-button" type="button">
+                            GRANT ADMIN
+                        </button>
+                    </div>
+
+                    <div id="adminRoleStatus" class="admin-role-status"></div>
+                </div>
+
+
                 <div class="admin-table-wrap">
 
                     <table class="admin-table">
@@ -2062,73 +2235,7 @@ a {
                             </tr>
                         </thead>
 
-                        <tbody>
-
-                            <tr>
-                                <td>123456</td>
-                                <td>St4TIC</td>
-                                <td>Admin</td>
-                                <td>
-                                    <span class="active-label">
-                                        Active
-                                    </span>
-                                </td>
-                                <td>20 Sep 2026</td>
-                                <td>EDIT</td>
-                            </tr>
-
-                            <tr>
-                                <td>234567</td>
-                                <td>Westend</td>
-                                <td>Member</td>
-                                <td>
-                                    <span class="active-label">
-                                        Active
-                                    </span>
-                                </td>
-                                <td>18 Sep 2026</td>
-                                <td>EDIT</td>
-                            </tr>
-
-                            <tr>
-                                <td>345678</td>
-                                <td>Hades91</td>
-                                <td>Member</td>
-                                <td>
-                                    <span class="active-label">
-                                        Active
-                                    </span>
-                                </td>
-                                <td>19 Sep 2026</td>
-                                <td>EDIT</td>
-                            </tr>
-
-                            <tr>
-                                <td>456789</td>
-                                <td>Collete</td>
-                                <td>Member</td>
-                                <td>
-                                    <span class="active-label">
-                                        Active
-                                    </span>
-                                </td>
-                                <td>21 Sep 2026</td>
-                                <td>EDIT</td>
-                            </tr>
-
-                            <tr>
-                                <td>567890</td>
-                                <td>Satomi</td>
-                                <td>Member</td>
-                                <td>
-                                    <span class="active-label">
-                                        Active
-                                    </span>
-                                </td>
-                                <td>22 Sep 2026</td>
-                                <td>EDIT</td>
-                            </tr>
-
+                        <tbody id="adminMembersTableBody">
                         </tbody>
 
                     </table>
@@ -2234,6 +2341,23 @@ const navButtons =
 
 function showPage(pageId) {
 
+    if (pageId === "admin") {
+        const savedMember = getSavedMember();
+
+        if (savedMember) {
+            const role = getMemberRole(savedMember);
+
+            if (role !== "owner" && role !== "admin") {
+                openAccess("access");
+                setAccessStatus(
+                    "Admin access is restricted to the Frostbite Owner and appointed Admins.",
+                    "error"
+                );
+                return;
+            }
+        }
+    }
+
     pages.forEach(page => {
 
         page.classList.toggle(
@@ -2284,7 +2408,9 @@ navButtons.forEach(button => {
 
 const temporaryMembers = [
     {
+        id: 3982553,
         name: "St4TIC",
+        role: "owner",
         level: 100,
         rank: "Distinguished",
         status: "Online",
@@ -2292,7 +2418,9 @@ const temporaryMembers = [
         action: "2 minutes ago"
     },
     {
+        id: 234567,
         name: "Westend",
+        role: "member",
         level: 96,
         rank: "Distinguished",
         status: "Online",
@@ -2300,7 +2428,9 @@ const temporaryMembers = [
         action: "5 minutes ago"
     },
     {
+        id: 345678,
         name: "Hades91",
+        role: "member",
         level: 90,
         rank: "Professional",
         status: "Idle",
@@ -2308,7 +2438,9 @@ const temporaryMembers = [
         action: "24 minutes ago"
     },
     {
+        id: 456789,
         name: "Collete",
+        role: "member",
         level: 88,
         rank: "Professional",
         status: "Offline",
@@ -2316,7 +2448,9 @@ const temporaryMembers = [
         action: "2 hours ago"
     },
     {
+        id: 567890,
         name: "Satomi",
+        role: "member",
         level: 82,
         rank: "Highly Distinguished",
         status: "Online",
@@ -2324,7 +2458,9 @@ const temporaryMembers = [
         action: "11 minutes ago"
     },
     {
+        id: 678901,
         name: "Razor",
+        role: "member",
         level: 82,
         rank: "Veteran",
         status: "Offline",
@@ -2332,7 +2468,9 @@ const temporaryMembers = [
         action: "4 hours ago"
     },
     {
+        id: 789012,
         name: "Blizzard",
+        role: "member",
         level: 79,
         rank: "Experienced",
         status: "Online",
@@ -2340,7 +2478,9 @@ const temporaryMembers = [
         action: "16 minutes ago"
     },
     {
+        id: 890123,
         name: "FrostSoul",
+        role: "member",
         level: 76,
         rank: "Experienced",
         status: "Offline",
@@ -2352,6 +2492,85 @@ const temporaryMembers = [
 
 const membersGrid =
     document.getElementById("membersGrid");
+
+
+
+const FROSTBITE_OWNER_ID = 3982553;
+const FROSTBITE_OWNER_NAME = "St4TIC";
+const FROSTBITE_ADMIN_STORAGE_KEY = "frostbite_admin_ids";
+
+
+function getAdminIds() {
+    try {
+        const raw = JSON.parse(
+            localStorage.getItem(FROSTBITE_ADMIN_STORAGE_KEY) || "[]"
+        );
+
+        return Array.isArray(raw)
+            ? raw.map(Number).filter(Boolean)
+            : [];
+
+    } catch {
+        return [];
+    }
+}
+
+
+function saveAdminIds(ids) {
+    const clean = [...new Set(
+        ids.map(Number).filter(id => id && id !== FROSTBITE_OWNER_ID)
+    )];
+
+    localStorage.setItem(
+        FROSTBITE_ADMIN_STORAGE_KEY,
+        JSON.stringify(clean)
+    );
+}
+
+
+function getMemberRole(member) {
+    const id = Number(member.id);
+
+    if (
+        id === FROSTBITE_OWNER_ID ||
+        member.role === "owner"
+    ) {
+        return "owner";
+    }
+
+    if (getAdminIds().includes(id)) {
+        return "admin";
+    }
+
+    return "member";
+}
+
+
+function getNameRoleClass(member) {
+    const role = getMemberRole(member);
+
+    if (role === "owner") return "owner-name";
+    if (role === "admin") return "admin-name";
+
+    return "";
+}
+
+
+function roleLabel(role) {
+    if (role === "owner") return "Owner";
+    if (role === "admin") return "Admin";
+    return "Member";
+}
+
+
+function applyIdentityRole(member) {
+    const role = getMemberRole(member);
+
+    return {
+        ...member,
+        role
+    };
+}
 
 
 function renderMembers(members) {
@@ -2372,7 +2591,7 @@ function renderMembers(members) {
 
                     <div>
 
-                        <div class="member-name">
+                        <div class="member-name ${getNameRoleClass(member)}">
                             ${member.name}
                         </div>
 
@@ -2528,8 +2747,18 @@ function showSavedMember(member) {
 
     accessTitle.textContent = "MEMBER ACCESS";
     registeredMemberName.textContent = member.name || "Frostbite Member";
+    const resolvedMember = applyIdentityRole(member);
+
+    registeredMemberName.classList.remove("owner-name", "admin-name");
+
+    const nameClass = getNameRoleClass(resolvedMember);
+
+    if (nameClass) {
+        registeredMemberName.classList.add(nameClass);
+    }
+
     registeredMemberMeta.textContent =
-        `Torn ID ${member.id} · Frostbite verified on this browser`;
+        `Torn ID ${member.id} · ${roleLabel(resolvedMember.role)} · Frostbite verified on this browser`;
 }
 
 
@@ -2643,6 +2872,14 @@ async function verifyFrostbiteMember() {
             id: playerId,
             name: playerName,
             factionId: factionId,
+            role:
+                playerId === FROSTBITE_OWNER_ID
+                    ? "owner"
+                    : (
+                        getAdminIds().includes(playerId)
+                            ? "admin"
+                            : "member"
+                    ),
             verifiedAt: new Date().toISOString()
         };
 
@@ -2711,6 +2948,169 @@ forgetMemberButton.addEventListener("click", () => {
 
     setAccessStatus("This browser is no longer registered.", "success");
 });
+
+
+
+/* =========================================================
+   OWNER / ADMIN ROLE MANAGEMENT
+   ========================================================= */
+
+const adminMembersTableBody =
+    document.getElementById("adminMembersTableBody");
+
+const adminMemberSelect =
+    document.getElementById("adminMemberSelect");
+
+const toggleAdminRoleButton =
+    document.getElementById("toggleAdminRoleButton");
+
+const adminRoleStatus =
+    document.getElementById("adminRoleStatus");
+
+
+function getRoleManagedMembers() {
+    const registered = getSavedMember();
+
+    const map = new Map();
+
+    temporaryMembers.forEach(member => {
+        map.set(Number(member.id), applyIdentityRole(member));
+    });
+
+    if (registered?.id) {
+        map.set(
+            Number(registered.id),
+            applyIdentityRole({
+                id: Number(registered.id),
+                name: registered.name,
+                level: "—",
+                rank: "Registered",
+                status: "Registered",
+                statusClass: "",
+                action: "This browser"
+            })
+        );
+    }
+
+    return [...map.values()];
+}
+
+
+function renderAdminRoleManager() {
+    if (!adminMembersTableBody || !adminMemberSelect) return;
+
+    const members = getRoleManagedMembers();
+
+    adminMembersTableBody.innerHTML =
+        members.map(member => {
+            const role = getMemberRole(member);
+            const roleClass =
+                role === "owner"
+                    ? "role-owner"
+                    : role === "admin"
+                        ? "role-admin"
+                        : "role-member";
+
+            return `
+                <tr>
+                    <td>${member.id}</td>
+                    <td class="${getNameRoleClass(member)}">${member.name}</td>
+                    <td class="${roleClass}">${roleLabel(role)}</td>
+                    <td>
+                        <span class="active-label">
+                            ${role === "owner" ? "Protected" : "Active"}
+                        </span>
+                    </td>
+                    <td>Registered</td>
+                    <td>${role === "owner" ? "PERMANENT" : role === "admin" ? "ADMIN" : "MEMBER"}</td>
+                </tr>
+            `;
+        }).join("");
+
+    const selectable =
+        members.filter(member => Number(member.id) !== FROSTBITE_OWNER_ID);
+
+    adminMemberSelect.innerHTML =
+        selectable.length
+            ? selectable.map(member => `
+                <option value="${member.id}">
+                    ${member.name} · ${roleLabel(getMemberRole(member))}
+                </option>
+            `).join("")
+            : `<option value="">No registered members available</option>`;
+
+    updateAdminRoleButton();
+}
+
+
+function updateAdminRoleButton() {
+    const selectedId = Number(adminMemberSelect?.value);
+
+    if (!selectedId) {
+        toggleAdminRoleButton.disabled = true;
+        toggleAdminRoleButton.textContent = "GRANT ADMIN";
+        return;
+    }
+
+    toggleAdminRoleButton.disabled = false;
+
+    toggleAdminRoleButton.textContent =
+        getAdminIds().includes(selectedId)
+            ? "REMOVE ADMIN"
+            : "GRANT ADMIN";
+}
+
+
+adminMemberSelect?.addEventListener(
+    "change",
+    updateAdminRoleButton
+);
+
+
+toggleAdminRoleButton?.addEventListener(
+    "click",
+    () => {
+        const selectedId = Number(adminMemberSelect.value);
+
+        if (!selectedId || selectedId === FROSTBITE_OWNER_ID) return;
+
+        const admins = getAdminIds();
+        const isAdmin = admins.includes(selectedId);
+
+        const nextAdmins =
+            isAdmin
+                ? admins.filter(id => id !== selectedId)
+                : [...admins, selectedId];
+
+        saveAdminIds(nextAdmins);
+
+        const member =
+            getRoleManagedMembers().find(
+                item => Number(item.id) === selectedId
+            );
+
+        adminRoleStatus.textContent =
+            isAdmin
+                ? `${member?.name || "Member"} returned to Member.`
+                : `${member?.name || "Member"} is now an Admin.`;
+
+        adminRoleStatus.className =
+            "admin-role-status success";
+
+        renderMembers(temporaryMembers);
+        renderAdminRoleManager();
+
+        const savedMember = getSavedMember();
+
+        if (savedMember) {
+            showSavedMember(savedMember);
+        }
+    }
+);
+
+
+renderAdminRoleManager();
+
 
 
 /* =========================================================
