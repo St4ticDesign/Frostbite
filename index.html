@@ -501,6 +501,9 @@ a {
 .market-meta-value{display:block;color:#b8bab5;font-size:13px;font-weight:600;line-height:1.25}
 .market-action{margin-top:18px;width:100%;height:35px;border:1px solid #3c423e;background:rgba(255,255,255,.012);color:#888d88;font-size:10px;font-weight:700;letter-spacing:1.7px}
 .market-action:hover{border-color:#59605b;color:#c0c2bd;background:rgba(255,255,255,.025)}
+.market-delete{margin-top:8px;width:100%;height:32px;border:1px solid #47383a;background:rgba(100,25,30,.035);color:#916f71;font-size:9px;font-weight:700;letter-spacing:1.5px}
+.market-delete:hover{border-color:#6a494c;color:#bf8f92;background:rgba(120,30,36,.07)}
+
 .market-head-actions{margin-top:26px;display:flex;justify-content:flex-end}
 .market-add-button{height:38px;padding:0 20px;border:1px solid #4b504c;background:rgba(255,255,255,.018);color:#aeb1ac;font-size:9px;font-weight:700;letter-spacing:1.6px}
 .market-add-button:hover{border-color:#6a716c;color:#d0d2cd;background:rgba(255,255,255,.035)}
@@ -3505,6 +3508,27 @@ let marketImageData="";
 
 function marketMoney(value){return "$"+Number(value||0).toLocaleString("en-AU")}
 function marketEscape(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]))}
+function marketViewer(){
+    try{return getSavedMember()||null}catch{return null}
+}
+function marketDeleteAllowed(listing){
+    const viewer=marketViewer();
+    if(!viewer)return false;
+    const viewerId=Number(viewer.id);
+    const role=getMemberRole(viewer);
+    return viewerId===Number(listing.ownerId) || role==="owner" || role==="admin";
+}
+function deleteMarketTestListing(id){
+    let listings=[];
+    try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
+    const listing=listings.find(x=>String(x.id)===String(id));
+    if(!listing || !marketDeleteAllowed(listing))return false;
+    if(!confirm("Delete this market listing?"))return false;
+    listings=listings.filter(x=>String(x.id)!==String(id));
+    localStorage.setItem(MARKET_LISTINGS_KEY,JSON.stringify(listings));
+    return true;
+}
+
 function marketCard(listing){
     const art=listing.image
         ? `<img src="${listing.image}" alt="">`
@@ -3533,6 +3557,7 @@ function marketCard(listing){
             </div>
             ${equipment}
             <button class="market-action" type="button">VIEW ITEM →</button>
+            ${marketDeleteAllowed(listing)?`<button class="market-delete" type="button" data-listing-id="${marketEscape(listing.id)}">DELETE LISTING</button>`:""}
         </div>
     </article>`;
 }
@@ -3541,6 +3566,21 @@ function loadMarketTestListings(){
     try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
     listings.forEach(x=>marketGrid.insertAdjacentHTML("afterbegin",marketCard(x)));
     marketCount.textContent=(4+listings.length)+" ITEMS LISTED";
+    bindMarketDeleteButtons();
+}
+function bindMarketDeleteButtons(){
+    marketGrid?.querySelectorAll(".market-delete").forEach(button=>{
+        if(button.dataset.bound==="1")return;
+        button.dataset.bound="1";
+        button.addEventListener("click",()=>{
+            if(deleteMarketTestListing(button.dataset.listingId)){
+                button.closest(".market-item")?.remove();
+                let listings=[];
+                try{listings=JSON.parse(localStorage.getItem(MARKET_LISTINGS_KEY)||"[]")}catch{}
+                marketCount.textContent=(4+listings.length)+" ITEMS LISTED";
+            }
+        });
+    });
 }
 function closeMarketListing(){marketListingModal.classList.remove("open");marketListingModal.setAttribute("aria-hidden","true")}
 marketAddButton?.addEventListener("click",()=>{marketListingModal.classList.add("open");marketListingModal.setAttribute("aria-hidden","false")});
@@ -3571,6 +3611,7 @@ marketListingForm?.addEventListener("submit",e=>{
         stock:Number(document.getElementById("marketItemStock").value),
         market:Number(document.getElementById("marketItemMarket").value),
         seller:document.getElementById("marketItemSeller").value.trim(),
+        ownerId:Number(marketViewer()?.id||FROSTBITE_OWNER_ID),
         damage:document.getElementById("marketItemDamage").value.trim(),
         accuracy:document.getElementById("marketItemAccuracy").value.trim(),
         armour:document.getElementById("marketItemArmour").value.trim(),
@@ -3583,6 +3624,7 @@ marketListingForm?.addEventListener("submit",e=>{
     listings.unshift(listing);
     try{localStorage.setItem(MARKET_LISTINGS_KEY,JSON.stringify(listings))}catch{alert("This image is too large for browser test storage. Try a smaller image.");return}
     marketGrid.insertAdjacentHTML("afterbegin",marketCard(listing));
+    bindMarketDeleteButtons();
     marketCount.textContent=(4+listings.length)+" ITEMS LISTED";
     marketListingForm.reset();
     marketImageData="";
