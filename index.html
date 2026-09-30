@@ -1751,6 +1751,24 @@ a {
     text-align: center;
 }
 
+
+.management-divider {
+    grid-column: 1 / -1;
+    height: 1px;
+    margin: 5px 0 7px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(111, 190, 232, .18) 8%,
+        rgba(126, 202, 240, .62) 50%,
+        rgba(111, 190, 232, .18) 92%,
+        transparent 100%
+    );
+    box-shadow:
+        0 0 6px rgba(104, 190, 235, .20),
+        0 0 14px rgba(104, 190, 235, .08);
+}
+
 </style>
 </head>
 
@@ -2517,6 +2535,75 @@ function getLiveStatusClass(lastActionStatus) {
 }
 
 
+function memberCardMarkup(member) {
+    return `
+        <article
+            class="member-card"
+            data-name="${member.name.toLowerCase()}"
+        >
+
+            <div class="member-card-top">
+
+                <div class="member-avatar">
+                    ${member.name.charAt(0)}
+                </div>
+
+                <div>
+
+                    <div class="member-name ${getNameRoleClass(member)}">
+                        ${member.name}
+                    </div>
+
+                    <div class="member-status">
+
+                        <span
+                            class="status-dot ${member.statusClass}"
+                        ></span>
+
+                        ${member.status}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="member-data">
+
+                <span class="member-data-label">
+                    Level
+                </span>
+
+                <span class="member-data-value">
+                    ${member.level}
+                </span>
+
+
+                <span class="member-data-label">
+                    Rank
+                </span>
+
+                <span class="member-data-value">
+                    ${member.rank}
+                </span>
+
+
+                <span class="member-data-label">
+                    Last Action
+                </span>
+
+                <span class="member-data-value">
+                    ${member.action}
+                </span>
+
+            </div>
+
+        </article>
+    `;
+}
+
+
 function renderMembers(members) {
     if (!members.length) {
         membersGrid.innerHTML = `
@@ -2527,74 +2614,48 @@ function renderMembers(members) {
         return;
     }
 
+    const management = [];
+    const regularMembers = [];
+
+    members.forEach(member => {
+        const role = getMemberRole(member);
+
+        if (role === "owner" || role === "admin") {
+            management.push(member);
+        } else {
+            regularMembers.push(member);
+        }
+    });
+
+    management.sort((a, b) => {
+        const aRole = getMemberRole(a);
+        const bRole = getMemberRole(b);
+
+        if (aRole === "owner" && bRole !== "owner") return -1;
+        if (bRole === "owner" && aRole !== "owner") return 1;
+
+        return a.name.localeCompare(b.name);
+    });
+
+    regularMembers.sort((a, b) =>
+        a.name.localeCompare(b.name)
+    );
+
+    const managementMarkup =
+        management.map(memberCardMarkup).join("");
+
+    const dividerMarkup =
+        management.length && regularMembers.length
+            ? `<div class="management-divider" aria-hidden="true"></div>`
+            : "";
+
+    const memberMarkup =
+        regularMembers.map(memberCardMarkup).join("");
+
     membersGrid.innerHTML =
-        members.map(member => `
-
-            <article
-                class="member-card"
-                data-name="${member.name.toLowerCase()}"
-            >
-
-                <div class="member-card-top">
-
-                    <div class="member-avatar">
-                        ${member.name.charAt(0)}
-                    </div>
-
-                    <div>
-
-                        <div class="member-name ${getNameRoleClass(member)}">
-                            ${member.name}
-                        </div>
-
-                        <div class="member-status">
-
-                            <span
-                                class="status-dot ${member.statusClass}"
-                            ></span>
-
-                            ${member.status}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="member-data">
-
-                    <span class="member-data-label">
-                        Level
-                    </span>
-
-                    <span class="member-data-value">
-                        ${member.level}
-                    </span>
-
-
-                    <span class="member-data-label">
-                        Rank
-                    </span>
-
-                    <span class="member-data-value">
-                        ${member.rank}
-                    </span>
-
-
-                    <span class="member-data-label">
-                        Last Action
-                    </span>
-
-                    <span class="member-data-value">
-                        ${member.action}
-                    </span>
-
-                </div>
-
-            </article>
-
-        `).join("");
+        managementMarkup +
+        dividerMarkup +
+        memberMarkup;
 }
 
 
@@ -2670,7 +2731,12 @@ function mapFactionMember(member) {
         name:
             member.name ||
             `Player ${member.id}`,
-        role: "member",
+        role:
+            Number(member.id) === FROSTBITE_OWNER_ID
+                ? "owner"
+                : getAdminIds().includes(Number(member.id))
+                    ? "admin"
+                    : "member",
         level:
             Number(member.level || 0),
         rank:
