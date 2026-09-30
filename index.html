@@ -1204,6 +1204,209 @@ a {
    RESPONSIVE
    ========================================================= */
 
+
+/* =========================================================
+   MEMBER FRONT DOOR
+   ========================================================= */
+
+.access-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(2,3,3,.88);
+    backdrop-filter: blur(10px);
+}
+
+.access-overlay.open { display: flex; }
+
+.access-dialog {
+    width: min(100%, 520px);
+    border: 1px solid var(--border);
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.025), rgba(255,255,255,.004)),
+        #090a0a;
+    box-shadow: 0 30px 90px rgba(0,0,0,.55);
+}
+
+.access-dialog-header {
+    padding: 27px 28px 22px;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.access-kicker {
+    color: #666865;
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 4px;
+}
+
+.access-title {
+    margin: 9px 0 0;
+    color: #c4c5c0;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.access-close {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: #777976;
+    font-size: 17px;
+    line-height: 1;
+}
+
+.access-close:hover {
+    color: #d0d0cb;
+    border-color: #555752;
+}
+
+.access-dialog-body { padding: 28px; }
+
+.access-copy {
+    margin: 0 0 22px;
+    color: #858783;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.access-label {
+    display: block;
+    margin-bottom: 9px;
+    color: #777976;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.access-key-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 9px;
+}
+
+.access-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 15px;
+    border: 1px solid var(--border);
+    background: #060707;
+    color: #bfc0bb;
+    outline: none;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.access-input:focus { border-color: #5c5e59; }
+
+.access-toggle {
+    min-width: 78px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.02);
+    color: #858783;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.access-submit {
+    width: 100%;
+    height: 49px;
+    margin-top: 13px;
+    border: 1px solid #50524d;
+    background: rgba(142,143,136,.10);
+    color: #c7c8c3;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.access-submit:hover {
+    background: rgba(180,181,174,.12);
+    border-color: #686a64;
+}
+
+.access-submit:disabled {
+    cursor: wait;
+    opacity: .55;
+}
+
+.access-status {
+    min-height: 19px;
+    margin-top: 15px;
+    color: #777976;
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.access-status.success { color: #74a980; }
+.access-status.error { color: #b57b73; }
+
+.access-security {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-soft);
+    color: #5f615e;
+    font-size: 8px;
+    line-height: 1.8;
+}
+
+.access-member {
+    display: none;
+    padding: 18px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.018);
+}
+
+.access-member.visible { display: block; }
+
+.access-member-name {
+    color: #c4c5c0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.access-member-meta {
+    margin-top: 8px;
+    color: #727471;
+    font-size: 9px;
+    line-height: 1.7;
+}
+
+.access-member-actions {
+    margin-top: 17px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.access-secondary {
+    height: 42px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: #858783;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.access-secondary:hover {
+    color: #c3c4bf;
+    border-color: #555752;
+}
+
+
 @media (max-width: 1100px) {
 
     .members-heading-row {
@@ -1473,11 +1676,11 @@ a {
 
                 <div class="hero-actions">
 
-                    <button class="hero-button primary">
+                    <button class="hero-button primary" id="memberAccessButton">
                         MEMBER ACCESS &nbsp; →
                     </button>
 
-                    <button class="hero-button">
+                    <button class="hero-button" id="registerButton">
                         REGISTER &nbsp; →
                     </button>
 
@@ -1941,6 +2144,77 @@ a {
 </main>
 
 
+
+<div id="accessOverlay" class="access-overlay" aria-hidden="true">
+    <section class="access-dialog" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
+
+        <div class="access-dialog-header">
+            <div>
+                <div class="access-kicker">FROSTBITE · MEMBER ACCESS</div>
+                <h2 id="accessTitle" class="access-title">REGISTER</h2>
+            </div>
+
+            <button id="accessClose" class="access-close" type="button" aria-label="Close">×</button>
+        </div>
+
+        <div class="access-dialog-body">
+
+            <div id="registrationForm">
+                <p class="access-copy">
+                    Enter a Torn Limited Access API key. Frostbite will use it
+                    to confirm your Torn identity and current faction membership.
+                </p>
+
+                <label class="access-label" for="tornApiKey">
+                    LIMITED ACCESS API KEY
+                </label>
+
+                <div class="access-key-row">
+                    <input
+                        id="tornApiKey"
+                        class="access-input"
+                        type="password"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="Enter API key"
+                    >
+
+                    <button id="toggleApiKey" class="access-toggle" type="button">
+                        SHOW
+                    </button>
+                </div>
+
+                <button id="validateMemberButton" class="access-submit" type="button">
+                    VERIFY FROSTBITE MEMBERSHIP
+                </button>
+
+                <div id="accessStatus" class="access-status" aria-live="polite"></div>
+
+                <div class="access-security">
+                    Your API key is stored only in this browser.
+                    It is not written to Frostbite's database.
+                </div>
+            </div>
+
+            <div id="registeredMember" class="access-member">
+                <div id="registeredMemberName" class="access-member-name"></div>
+                <div id="registeredMemberMeta" class="access-member-meta"></div>
+
+                <div class="access-member-actions">
+                    <button id="continueMemberButton" class="access-secondary" type="button">
+                        CONTINUE
+                    </button>
+
+                    <button id="forgetMemberButton" class="access-secondary" type="button">
+                        FORGET THIS BROWSER
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</div>
+
 <footer class="site-footer">
     FROSTBITE · WE LEAD · 2026
 </footer>
@@ -2206,6 +2480,237 @@ document
         });
 
     });
+
+
+
+/* =========================================================
+   MEMBER FRONT DOOR
+   ========================================================= */
+
+const FROSTBITE_FACTION_ID = 41234;
+
+const accessOverlay = document.getElementById("accessOverlay");
+const accessTitle = document.getElementById("accessTitle");
+const accessClose = document.getElementById("accessClose");
+const registrationForm = document.getElementById("registrationForm");
+const registeredMember = document.getElementById("registeredMember");
+const registeredMemberName = document.getElementById("registeredMemberName");
+const registeredMemberMeta = document.getElementById("registeredMemberMeta");
+const tornApiKey = document.getElementById("tornApiKey");
+const toggleApiKey = document.getElementById("toggleApiKey");
+const validateMemberButton = document.getElementById("validateMemberButton");
+const accessStatus = document.getElementById("accessStatus");
+const registerButton = document.getElementById("registerButton");
+const memberAccessButton = document.getElementById("memberAccessButton");
+const continueMemberButton = document.getElementById("continueMemberButton");
+const forgetMemberButton = document.getElementById("forgetMemberButton");
+
+
+function getSavedMember() {
+    try {
+        const raw = localStorage.getItem("frostbite_member");
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+
+function setAccessStatus(message, type = "") {
+    accessStatus.textContent = message;
+    accessStatus.className = `access-status ${type}`.trim();
+}
+
+
+function showSavedMember(member) {
+    registrationForm.style.display = "none";
+    registeredMember.classList.add("visible");
+
+    accessTitle.textContent = "MEMBER ACCESS";
+    registeredMemberName.textContent = member.name || "Frostbite Member";
+    registeredMemberMeta.textContent =
+        `Torn ID ${member.id} · Frostbite verified on this browser`;
+}
+
+
+function openAccess(mode = "register") {
+    accessOverlay.classList.add("open");
+    accessOverlay.setAttribute("aria-hidden", "false");
+
+    setAccessStatus("");
+
+    const savedMember = getSavedMember();
+
+    if (mode === "access" && savedMember) {
+        showSavedMember(savedMember);
+        return;
+    }
+
+    registrationForm.style.display = "block";
+    registeredMember.classList.remove("visible");
+    accessTitle.textContent = mode === "access" ? "MEMBER ACCESS" : "REGISTER";
+
+    tornApiKey.value = "";
+
+    setTimeout(() => tornApiKey.focus(), 50);
+}
+
+
+function closeAccess() {
+    accessOverlay.classList.remove("open");
+    accessOverlay.setAttribute("aria-hidden", "true");
+
+    tornApiKey.value = "";
+    tornApiKey.type = "password";
+    toggleApiKey.textContent = "SHOW";
+}
+
+
+async function tornRequest(path, apiKey) {
+    const response = await fetch(
+        `https://api.torn.com/v2/${path}`,
+        {
+            method: "GET",
+            headers: {
+                "Authorization": `ApiKey ${apiKey}`
+            },
+            cache: "no-store"
+        }
+    );
+
+    let data;
+
+    try {
+        data = await response.json();
+    } catch {
+        throw new Error("Torn returned an unreadable response.");
+    }
+
+    if (!response.ok || data?.error) {
+        const message =
+            data?.error?.error ||
+            data?.error?.message ||
+            `Torn API request failed (${response.status}).`;
+
+        throw new Error(message);
+    }
+
+    return data;
+}
+
+
+async function verifyFrostbiteMember() {
+    const apiKey = tornApiKey.value.trim();
+
+    if (!apiKey) {
+        setAccessStatus("Enter your Torn API key first.", "error");
+        return;
+    }
+
+    validateMemberButton.disabled = true;
+    validateMemberButton.textContent = "VERIFYING...";
+
+    setAccessStatus("Checking your Torn identity and faction membership...");
+
+    try {
+        const keyInfo = await tornRequest("key/info", apiKey);
+
+        const keyType = keyInfo?.access?.type || "";
+
+        if (keyType && keyType.toLowerCase() !== "limited access") {
+            throw new Error("Please use a Limited Access API key for Frostbite.");
+        }
+
+        const playerId = Number(keyInfo?.user?.id);
+        const factionId = Number(keyInfo?.user?.faction_id);
+
+        if (!playerId) {
+            throw new Error("Torn could not identify the owner of this API key.");
+        }
+
+        if (factionId !== FROSTBITE_FACTION_ID) {
+            throw new Error("This Torn account is not currently a member of Frostbite.");
+        }
+
+        const basic = await tornRequest("user/basic", apiKey);
+
+        const playerName =
+            basic?.name ||
+            basic?.profile?.name ||
+            `Player ${playerId}`;
+
+        const member = {
+            id: playerId,
+            name: playerName,
+            factionId: factionId,
+            verifiedAt: new Date().toISOString()
+        };
+
+        localStorage.setItem("frostbite_api_key", apiKey);
+        localStorage.setItem("frostbite_member", JSON.stringify(member));
+
+        setAccessStatus(`Verified. Welcome to Frostbite, ${playerName}.`, "success");
+
+        setTimeout(() => showSavedMember(member), 700);
+
+    } catch (error) {
+        setAccessStatus(
+            error?.message || "Frostbite could not verify this API key.",
+            "error"
+        );
+
+    } finally {
+        validateMemberButton.disabled = false;
+        validateMemberButton.textContent = "VERIFY FROSTBITE MEMBERSHIP";
+    }
+}
+
+
+registerButton.addEventListener("click", () => openAccess("register"));
+memberAccessButton.addEventListener("click", () => openAccess("access"));
+accessClose.addEventListener("click", closeAccess);
+
+accessOverlay.addEventListener("click", event => {
+    if (event.target === accessOverlay) {
+        closeAccess();
+    }
+});
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && accessOverlay.classList.contains("open")) {
+        closeAccess();
+    }
+});
+
+toggleApiKey.addEventListener("click", () => {
+    const hidden = tornApiKey.type === "password";
+    tornApiKey.type = hidden ? "text" : "password";
+    toggleApiKey.textContent = hidden ? "HIDE" : "SHOW";
+});
+
+validateMemberButton.addEventListener("click", verifyFrostbiteMember);
+
+tornApiKey.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+        verifyFrostbiteMember();
+    }
+});
+
+continueMemberButton.addEventListener("click", () => {
+    closeAccess();
+    showPage("members");
+});
+
+forgetMemberButton.addEventListener("click", () => {
+    localStorage.removeItem("frostbite_api_key");
+    localStorage.removeItem("frostbite_member");
+
+    registeredMember.classList.remove("visible");
+    registrationForm.style.display = "block";
+    accessTitle.textContent = "REGISTER";
+
+    setAccessStatus("This browser is no longer registered.", "success");
+});
 
 
 /* =========================================================
