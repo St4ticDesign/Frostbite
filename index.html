@@ -523,6 +523,19 @@ a {
 .market-form-actions button{height:39px;padding:0 18px;border:1px solid #424843;background:#0b0e0e;color:#9ea29d;font-size:9px;font-weight:700;letter-spacing:1.4px}
 .market-form-actions .primary{border-color:#5a625c;color:#c4c7c1}
 .market-form-note{margin-top:12px;color:#555b56;font-size:8px;line-height:1.6}
+.market-equipment-fields{display:none;grid-column:1/-1;border-top:1px solid #2f3431;margin-top:4px;padding-top:18px}
+.market-equipment-fields.show{display:block}
+.market-equipment-title{color:#9da19c;font-size:10px;font-weight:700;letter-spacing:1.8px;margin-bottom:14px}
+.market-equipment-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.market-field textarea{min-height:78px;resize:vertical;border:1px solid #343a36;background:#050707;color:#bfc1bc;padding:11px 12px;font:inherit;outline:none}
+.market-field textarea:focus{border-color:#59615b}
+.market-equipment-card{margin-top:16px;padding-top:13px;border-top:1px solid #292e2b}
+.market-equipment-card-title{color:#666c67;font-size:8px;font-weight:700;letter-spacing:1.6px;margin-bottom:9px}
+.market-equipment-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 12px}
+.market-equipment-stat{display:flex;justify-content:space-between;gap:12px;color:#777d78;font-size:10px}
+.market-equipment-stat strong{color:#b5b8b2;font-weight:650}
+.market-bonus{margin-top:9px;color:#8eaaaF;font-size:10px;line-height:1.45}
+
 @media(max-width:560px){.market-form-grid{grid-template-columns:1fr}.market-field.full{grid-column:auto}}
 
 @media(max-width:900px){.market-grid{grid-template-columns:1fr}.market-item{grid-template-columns:110px 1fr}}
@@ -2225,6 +2238,32 @@ a {
                 <label for="marketItemSeller">SELLER</label>
                 <input id="marketItemSeller" value="St4TIC" maxlength="40" required>
             </div>
+            <div id="marketEquipmentFields" class="market-equipment-fields">
+                <div class="market-equipment-title">EQUIPMENT STATS &amp; BONUSES</div>
+                <div class="market-equipment-grid">
+                    <div class="market-field">
+                        <label for="marketItemDamage">DAMAGE</label>
+                        <input id="marketItemDamage" type="number" min="0" step="0.01">
+                    </div>
+                    <div class="market-field">
+                        <label for="marketItemAccuracy">ACCURACY</label>
+                        <input id="marketItemAccuracy" type="number" min="0" step="0.01">
+                    </div>
+                    <div class="market-field">
+                        <label for="marketItemArmour">ARMOUR</label>
+                        <input id="marketItemArmour" type="number" min="0" step="0.01">
+                    </div>
+                    <div class="market-field">
+                        <label for="marketItemQuality">QUALITY %</label>
+                        <input id="marketItemQuality" type="number" min="0" step="0.01">
+                    </div>
+                    <div class="market-field full">
+                        <label for="marketItemBonuses">BONUSES / SPECIAL EFFECTS</label>
+                        <textarea id="marketItemBonuses" maxlength="240" placeholder="e.g. 12% Eviscerate · 8% Rage"></textarea>
+                    </div>
+                </div>
+            </div>
+
             <div class="market-field full">
                 <label>ITEM IMAGE · JPG / PNG</label>
                 <label id="marketUploadBox" class="market-upload" for="marketItemImage">
@@ -3457,6 +3496,8 @@ const marketListingClose=document.getElementById("marketListingClose");
 const marketListingCancel=document.getElementById("marketListingCancel");
 const marketItemImage=document.getElementById("marketItemImage");
 const marketUploadBox=document.getElementById("marketUploadBox");
+const marketItemCategory=document.getElementById("marketItemCategory");
+const marketEquipmentFields=document.getElementById("marketEquipmentFields");
 const marketGrid=document.querySelector(".market-grid");
 const marketCount=document.querySelector(".market-count");
 const MARKET_LISTINGS_KEY="frostbite_market_test_listings";
@@ -3468,6 +3509,15 @@ function marketCard(listing){
     const art=listing.image
         ? `<img src="${listing.image}" alt="">`
         : `<span class="market-art-mark">${marketEscape((listing.name||"?").slice(0,2).toUpperCase())}</span>`;
+    const isEquipment=["WEAPON","ARMOUR"].includes(String(listing.category||"").toUpperCase());
+    const stats=[];
+    if(listing.damage) stats.push(["DAMAGE",listing.damage]);
+    if(listing.accuracy) stats.push(["ACCURACY",listing.accuracy]);
+    if(listing.armour) stats.push(["ARMOUR",listing.armour]);
+    if(listing.quality) stats.push(["QUALITY",listing.quality+"%"]);
+    const equipment=isEquipment && (stats.length || listing.bonuses)
+        ? `<div class="market-equipment-card"><div class="market-equipment-card-title">EQUIPMENT</div>${stats.length?`<div class="market-equipment-stats">${stats.map(s=>`<div class="market-equipment-stat"><span>${s[0]}</span><strong>${marketEscape(s[1])}</strong></div>`).join("")}</div>`:""}${listing.bonuses?`<div class="market-bonus">${marketEscape(listing.bonuses)}</div>`:""}</div>`
+        : "";
     return `<article class="market-item" data-test-listing="1">
         <div class="market-art">${art}</div>
         <div>
@@ -3481,6 +3531,7 @@ function marketCard(listing){
                 <div><span class="market-meta-label">STOCK</span><span class="market-meta-value">${marketEscape(listing.stock)}</span></div>
                 <div><span class="market-meta-label">MARKET</span><span class="market-meta-value">${marketMoney(listing.market)}</span></div>
             </div>
+            ${equipment}
             <button class="market-action" type="button">VIEW ITEM →</button>
         </div>
     </article>`;
@@ -3496,6 +3547,11 @@ marketAddButton?.addEventListener("click",()=>{marketListingModal.classList.add(
 marketListingClose?.addEventListener("click",closeMarketListing);
 marketListingCancel?.addEventListener("click",closeMarketListing);
 marketListingModal?.addEventListener("click",e=>{if(e.target===marketListingModal)closeMarketListing()});
+function updateMarketEquipmentFields(){
+    marketEquipmentFields?.classList.toggle("show",["WEAPON","ARMOUR"].includes(marketItemCategory?.value));
+}
+marketItemCategory?.addEventListener("change",updateMarketEquipmentFields);
+updateMarketEquipmentFields();
 marketItemImage?.addEventListener("change",()=>{
     const file=marketItemImage.files?.[0];
     if(!file){marketImageData="";return}
@@ -3515,6 +3571,11 @@ marketListingForm?.addEventListener("submit",e=>{
         stock:Number(document.getElementById("marketItemStock").value),
         market:Number(document.getElementById("marketItemMarket").value),
         seller:document.getElementById("marketItemSeller").value.trim(),
+        damage:document.getElementById("marketItemDamage").value.trim(),
+        accuracy:document.getElementById("marketItemAccuracy").value.trim(),
+        armour:document.getElementById("marketItemArmour").value.trim(),
+        quality:document.getElementById("marketItemQuality").value.trim(),
+        bonuses:document.getElementById("marketItemBonuses").value.trim(),
         image:marketImageData
     };
     let listings=[];
