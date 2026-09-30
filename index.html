@@ -1737,6 +1737,19 @@ a {
         align-items: flex-start;
     }
 }
+
+.members-live-message {
+    grid-column: 1 / -1;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    color: #747672;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-align: center;
+}
 </style>
 </head>
 
@@ -1897,7 +1910,7 @@ a {
 
                 <div class="stat-box">
                     <div class="stat-value">1,845</div>
-                    <div class="stat-label">TOTAL LEVELS</div>
+                    <div class="stat-label">ACTIVE NOW</div>
                 </div>
 
             </div>
@@ -2407,88 +2420,7 @@ navButtons.forEach(button => {
    TEMPORARY MEMBER DATA
    ========================================================= */
 
-const temporaryMembers = [
-    {
-        id: 3982553,
-        name: "St4TIC",
-        role: "owner",
-        level: 100,
-        rank: "Distinguished",
-        status: "Online",
-        statusClass: "online",
-        action: "2 minutes ago"
-    },
-    {
-        id: 234567,
-        name: "Westend",
-        role: "member",
-        level: 96,
-        rank: "Distinguished",
-        status: "Online",
-        statusClass: "online",
-        action: "5 minutes ago"
-    },
-    {
-        id: 345678,
-        name: "Hades91",
-        role: "member",
-        level: 90,
-        rank: "Professional",
-        status: "Idle",
-        statusClass: "idle",
-        action: "24 minutes ago"
-    },
-    {
-        id: 456789,
-        name: "Collete",
-        role: "member",
-        level: 88,
-        rank: "Professional",
-        status: "Offline",
-        statusClass: "",
-        action: "2 hours ago"
-    },
-    {
-        id: 567890,
-        name: "Satomi",
-        role: "member",
-        level: 82,
-        rank: "Highly Distinguished",
-        status: "Online",
-        statusClass: "online",
-        action: "11 minutes ago"
-    },
-    {
-        id: 678901,
-        name: "Razor",
-        role: "member",
-        level: 82,
-        rank: "Veteran",
-        status: "Offline",
-        statusClass: "",
-        action: "4 hours ago"
-    },
-    {
-        id: 789012,
-        name: "Blizzard",
-        role: "member",
-        level: 79,
-        rank: "Experienced",
-        status: "Online",
-        statusClass: "online",
-        action: "16 minutes ago"
-    },
-    {
-        id: 890123,
-        name: "FrostSoul",
-        role: "member",
-        level: 76,
-        rank: "Experienced",
-        status: "Offline",
-        statusClass: "",
-        action: "1 hour ago"
-    }
-];
+let temporaryMembers = [];
 
 
 const membersGrid =
@@ -2574,6 +2506,14 @@ function applyIdentityRole(member) {
 }
 
 
+
+function getLiveStatusClass(lastActionStatus) {
+    const status = String(lastActionStatus || "").toLowerCase();
+    if (status === "online") return "online";
+    if (status === "idle") return "idle";
+    return "offline";
+}
+
 function renderMembers(members) {
 
     membersGrid.innerHTML =
@@ -2657,6 +2597,92 @@ renderMembers(temporaryMembers);
 const memberSearch =
     document.getElementById("memberSearch");
 
+
+
+const membersTotal = document.getElementById("membersTotal");
+const membersActive7d = document.getElementById("membersActive7d");
+const membersActiveNow = document.getElementById("membersActiveNow");
+
+function updateMemberSummary(members) {
+    const now = Math.floor(Date.now() / 1000);
+    const active7dWindow = 7 * 24 * 60 * 60;
+    const activeNowWindow = 5 * 60;
+
+    const active7d = members.filter(member =>
+        member.lastActionTimestamp > 0 &&
+        (now - member.lastActionTimestamp) <= active7dWindow
+    ).length;
+
+    const activeNow = members.filter(member =>
+        member.lastActionTimestamp > 0 &&
+        (now - member.lastActionTimestamp) <= activeNowWindow
+    ).length;
+
+    membersTotal.textContent = members.length.toLocaleString();
+    membersActive7d.textContent = members.length
+        ? `${Math.round((active7d / members.length) * 100)}%`
+        : "0%";
+    membersActiveNow.textContent = activeNow.toLocaleString();
+}
+
+function mapFactionMember(member) {
+    return {
+        id: Number(member.id),
+        name: member.name || `Player ${member.id}`,
+        role: "member",
+        level: Number(member.level || 0),
+        rank: member.position || "Member",
+        status: member.last_action?.status || "Offline",
+        statusClass: getLiveStatusClass(member.last_action?.status),
+        action: member.last_action?.relative || "Unknown",
+        lastActionTimestamp: Number(member.last_action?.timestamp || 0)
+    };
+}
+
+async function loadLiveFactionMembers() {
+    const apiKey = localStorage.getItem("frostbite_api_key");
+
+    if (!apiKey) {
+        temporaryMembers = [];
+        membersTotal.textContent = "—";
+        membersActive7d.textContent = "—";
+        membersActiveNow.textContent = "—";
+        renderMembers([]);
+        return;
+    }
+
+    memberGrid.innerHTML = `
+        <div class="members-live-message">
+            Loading live Frostbite roster...
+        </div>
+    `;
+
+    try {
+        const data = await tornRequest(
+            `faction/${FROSTBITE_FACTION_ID}/members`,
+            apiKey
+        );
+
+        temporaryMembers = (Array.isArray(data?.members) ? data.members : [])
+            .map(mapFactionMember);
+
+        updateMemberSummary(temporaryMembers);
+        renderMembers(temporaryMembers);
+        renderAdminRoleManager();
+
+    } catch (error) {
+        temporaryMembers = [];
+        membersTotal.textContent = "—";
+        membersActive7d.textContent = "—";
+        membersActiveNow.textContent = "—";
+
+        memberGrid.innerHTML = `
+            <div class="members-live-message">
+                ${error?.message || "Unable to load the live Frostbite roster."}
+            </div>
+        `;
+    }
+}
 
 memberSearch.addEventListener("input", () => {
 
@@ -2887,6 +2913,8 @@ async function verifyFrostbiteMember() {
         localStorage.setItem("frostbite_api_key", apiKey);
         localStorage.setItem("frostbite_member", JSON.stringify(member));
 
+        loadLiveFactionMembers();
+
         setAccessStatus(`Verified. Welcome to Frostbite, ${playerName}.`, "success");
 
         setTimeout(() => showSavedMember(member), 700);
@@ -3116,6 +3144,8 @@ toggleAdminRoleButton?.addEventListener(
 
 
 renderAdminRoleManager();
+
+loadLiveFactionMembers();
 
 
 
