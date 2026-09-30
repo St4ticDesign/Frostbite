@@ -493,12 +493,6 @@ a {
 .market-art-stack{width:200px;display:flex;flex-direction:column;gap:10px;align-self:start}
 .market-stats-art{width:200px;aspect-ratio:2 / 1;border:1px solid #292d2a;background:rgba(4,5,5,.58);overflow:hidden}
 .market-stats-art img{width:100%;height:100%;object-fit:contain;display:block}
-.market-viewer{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;padding:32px;background:rgba(0,0,0,.92)}
-.market-viewer.open{display:flex}
-.market-viewer-box{position:relative;display:flex;align-items:center;justify-content:center;max-width:94vw;max-height:92vh;padding:12px;border:1px solid #3f4541;background:#050707;box-shadow:0 24px 80px rgba(0,0,0,.8)}
-.market-viewer-image{display:block;max-width:calc(94vw - 24px);max-height:calc(92vh - 24px);width:auto;height:auto;object-fit:contain}
-.market-viewer-close{position:absolute;top:8px;right:8px;z-index:2;width:34px;height:34px;border:1px solid #4b514d;background:rgba(5,7,7,.9);color:#c3c5c0;font-size:22px;line-height:30px;cursor:pointer}
-.market-art img,.market-stats-art img{cursor:zoom-in}
 .market-item-category{color:#555a56;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
 .market-item-name{margin-top:8px;color:#c1c2bd;font-size:20px;font-weight:700;letter-spacing:1.2px}
 .market-rule{height:1px;margin:13px 0;background:linear-gradient(90deg,#3d423e,transparent)}
@@ -2150,13 +2144,6 @@ a {
 
 </main>
 
-<div id="marketViewer" class="market-viewer" aria-hidden="true">
-    <div class="market-viewer-box">
-        <button id="marketViewerClose" class="market-viewer-close" type="button" aria-label="Close">×</button>
-        <img id="marketViewerImage" class="market-viewer-image" alt="Market listing image">
-    </div>
-</div>
-
 <div id="marketListingModal" class="market-modal" aria-hidden="true">
     <form id="marketListingForm" class="market-form">
         <div class="market-form-head">
@@ -3793,40 +3780,6 @@ marketListingForm?.addEventListener("submit",e=>{
 });
 
 loadMarketTestListings();
-
-(function(){
-    const viewer=document.getElementById("marketViewer");
-    const viewerImage=document.getElementById("marketViewerImage");
-    const viewerClose=document.getElementById("marketViewerClose");
-    if(!viewer||!viewerImage||!viewerClose)return;
-
-    function closeViewer(){
-        viewer.classList.remove("open");
-        viewer.setAttribute("aria-hidden","true");
-        viewerImage.removeAttribute("src");
-    }
-
-    document.addEventListener("click",function(e){
-        const img=e.target.closest(".market-art img, .market-stats-art img");
-        if(!img)return;
-        viewerImage.src=img.currentSrc||img.src;
-        viewer.classList.add("open");
-        viewer.setAttribute("aria-hidden","false");
-    });
-
-    viewerClose.addEventListener("click",function(e){
-        e.stopPropagation();
-        closeViewer();
-    });
-
-    viewer.addEventListener("click",function(e){
-        if(e.target===viewer)closeViewer();
-    });
-
-    document.addEventListener("keydown",function(e){
-        if(e.key==="Escape"&&viewer.classList.contains("open"))closeViewer();
-    });
-})();
 
 
 /* =========================================================
