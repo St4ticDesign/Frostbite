@@ -40,13 +40,13 @@ export async function onRequestGet(context) {
     // qualifying for the 90-day Silver tier.
     // Trader: Bazaar revenue $1,821,647,973, exceeding the $1B threshold.
     if (id === OWNER_ID) {
-      const now = Math.floor(Date.now() / 1000);
+      const verifiedAt = 1790755200; // 30 Sep 2026 UTC
 
       if (!achievements.some(a => a.badgeKey === "la_familia")) {
         achievements.push({
           badgeKey: "la_familia",
           badgeTier: "silver",
-          earnedAt: now,
+          earnedAt: verifiedAt,
           source: "manual",
           details: "Verified at 145 days in Frostbite; Silver tier (90+ days)."
         });
@@ -56,9 +56,10 @@ export async function onRequestGet(context) {
         achievements.push({
           badgeKey: "trader",
           badgeTier: null,
-          earnedAt: now,
+          earnedAt: verifiedAt,
           source: "manual",
-          details: "Verified Bazaar revenue: $1,821,647,973; Trader threshold: over $1,000,000,000."
+          metricValue: 1821647973,
+          details: "Verified public Bazaar revenue: $1,821,647,973; Trader threshold: over $1,000,000,000."
         });
       }
     }
