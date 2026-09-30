@@ -475,6 +475,36 @@ a {
 
 
 /* =========================================================
+   MARKET
+   ========================================================= */
+
+.market-intro{margin-top:18px;max-width:650px;color:#777a76;font-size:11px;line-height:1.7}
+.market-bar{margin-top:38px;padding:13px 16px;border-top:1px solid #343733;border-bottom:1px solid #252825;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.market-categories{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.market-category{border:0;background:none;padding:0;color:#626662;font-size:7px;font-weight:700;letter-spacing:1.7px}
+.market-category.active,.market-category:hover{color:#b9bbb6}
+.market-count{color:#565a56;font-size:7px;font-weight:700;letter-spacing:1.6px;white-space:nowrap}
+.market-grid{margin-top:18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.market-item{position:relative;min-height:250px;padding:22px;border:1px solid #333733;background:radial-gradient(circle at 12% 16%,rgba(82,159,194,.055),transparent 32%),linear-gradient(145deg,rgba(255,255,255,.019),rgba(255,255,255,.003));display:grid;grid-template-columns:130px 1fr;gap:22px;overflow:hidden;transition:border-color .18s ease,transform .18s ease,background .18s ease}
+.market-item:hover{transform:translateY(-2px);border-color:#4c514d;background:radial-gradient(circle at 12% 16%,rgba(82,159,194,.085),transparent 35%),linear-gradient(145deg,rgba(255,255,255,.028),rgba(255,255,255,.004))}
+.market-item::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:#525753;opacity:.55}
+.market-art{min-height:150px;border:1px solid #292d2a;background:radial-gradient(circle at 50% 42%,rgba(124,184,211,.10),transparent 34%),rgba(4,5,5,.58);display:grid;place-items:center;align-self:start}
+.market-art-mark{color:#777d79;font-size:38px;font-weight:300;text-shadow:0 0 20px rgba(100,181,218,.13)}
+.market-item-category{color:#555a56;font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.market-item-name{margin-top:8px;color:#c1c2bd;font-size:20px;font-weight:700;letter-spacing:1.2px}
+.market-rule{height:1px;margin:13px 0;background:linear-gradient(90deg,#3d423e,transparent)}
+.market-price-label{color:#666b67;font-size:6px;font-weight:700;letter-spacing:1.8px}
+.market-price{margin-top:5px;color:#c7c8c3;font-size:25px;font-weight:650;letter-spacing:.5px}
+.market-meta{margin-top:16px;display:grid;grid-template-columns:auto 1fr;gap:7px 13px;font-size:8px}
+.market-meta-label{color:#535854;text-transform:uppercase;letter-spacing:1px}
+.market-meta-value{color:#898c87}
+.market-saving{color:#83aebe;text-shadow:0 0 9px rgba(91,170,204,.10)}
+.market-action{margin-top:18px;width:100%;height:35px;border:1px solid #3c423e;background:rgba(255,255,255,.012);color:#888d88;font-size:7px;font-weight:700;letter-spacing:1.7px}
+.market-action:hover{border-color:#59605b;color:#c0c2bd;background:rgba(255,255,255,.025)}
+@media(max-width:900px){.market-grid{grid-template-columns:1fr}.market-item{grid-template-columns:110px 1fr}}
+@media(max-width:560px){.market-bar{align-items:flex-start;flex-direction:column}.market-item{grid-template-columns:1fr}.market-art{min-height:120px}}
+
+/* =========================================================
    WELCOME
    ========================================================= */
 
@@ -2034,6 +2064,98 @@ a {
         <h1 class="page-title weathered-soft">
             MARKET
         </h1>
+
+        <p class="market-intro">
+            Faction stock offered by Frostbite members. Browse available items and deal directly with the seller.
+        </p>
+
+        <div class="market-bar">
+            <div class="market-categories">
+                <button class="market-category active">ALL ITEMS</button>
+                <button class="market-category">DRUGS</button>
+                <button class="market-category">WEAPONS</button>
+                <button class="market-category">ARMOUR</button>
+                <button class="market-category">BOOSTERS</button>
+                <button class="market-category">SPECIAL</button>
+            </div>
+            <div class="market-count">4 ITEMS LISTED</div>
+        </div>
+
+        <section class="market-grid">
+
+            <article class="market-item">
+                <div class="market-art"><span class="market-art-mark">X</span></div>
+                <div>
+                    <div class="market-item-category">DRUG</div>
+                    <div class="market-item-name">XANAX</div>
+                    <div class="market-rule"></div>
+                    <div class="market-price-label">FROSTBITE MEMBER PRICE</div>
+                    <div class="market-price">$820,000</div>
+                    <div class="market-meta">
+                        <span class="market-meta-label">Seller</span><span class="market-meta-value">St4TIC</span>
+                        <span class="market-meta-label">Stock</span><span class="market-meta-value">128</span>
+                        <span class="market-meta-label">Market</span><span class="market-meta-value">$835,000</span>
+                        <span class="market-meta-label">Saving</span><span class="market-meta-value market-saving">$15,000</span>
+                    </div>
+                    <button class="market-action">VIEW ITEM →</button>
+                </div>
+            </article>
+
+            <article class="market-item">
+                <div class="market-art"><span class="market-art-mark">DP</span></div>
+                <div>
+                    <div class="market-item-category">SPECIAL</div>
+                    <div class="market-item-name">DONATOR PACK</div>
+                    <div class="market-rule"></div>
+                    <div class="market-price-label">FROSTBITE MEMBER PRICE</div>
+                    <div class="market-price">$23,450,000</div>
+                    <div class="market-meta">
+                        <span class="market-meta-label">Seller</span><span class="market-meta-value">Westend</span>
+                        <span class="market-meta-label">Stock</span><span class="market-meta-value">12</span>
+                        <span class="market-meta-label">Market</span><span class="market-meta-value">$23,900,000</span>
+                        <span class="market-meta-label">Saving</span><span class="market-meta-value market-saving">$450,000</span>
+                    </div>
+                    <button class="market-action">VIEW ITEM →</button>
+                </div>
+            </article>
+
+            <article class="market-item">
+                <div class="market-art"><span class="market-art-mark">E</span></div>
+                <div>
+                    <div class="market-item-category">BOOSTER</div>
+                    <div class="market-item-name">EROTIC DVD</div>
+                    <div class="market-rule"></div>
+                    <div class="market-price-label">FROSTBITE MEMBER PRICE</div>
+                    <div class="market-price">$3,850,000</div>
+                    <div class="market-meta">
+                        <span class="market-meta-label">Seller</span><span class="market-meta-value">Frostbite Member</span>
+                        <span class="market-meta-label">Stock</span><span class="market-meta-value">24</span>
+                        <span class="market-meta-label">Market</span><span class="market-meta-value">$3,940,000</span>
+                        <span class="market-meta-label">Saving</span><span class="market-meta-value market-saving">$90,000</span>
+                    </div>
+                    <button class="market-action">VIEW ITEM →</button>
+                </div>
+            </article>
+
+            <article class="market-item">
+                <div class="market-art"><span class="market-art-mark">◆</span></div>
+                <div>
+                    <div class="market-item-category">ARMOUR</div>
+                    <div class="market-item-name">TACTICAL VEST</div>
+                    <div class="market-rule"></div>
+                    <div class="market-price-label">FROSTBITE MEMBER PRICE</div>
+                    <div class="market-price">$1,250,000</div>
+                    <div class="market-meta">
+                        <span class="market-meta-label">Seller</span><span class="market-meta-value">Frostbite Member</span>
+                        <span class="market-meta-label">Stock</span><span class="market-meta-value">3</span>
+                        <span class="market-meta-label">Market</span><span class="market-meta-value">$1,340,000</span>
+                        <span class="market-meta-label">Saving</span><span class="market-meta-value market-saving">$90,000</span>
+                    </div>
+                    <button class="market-action">VIEW ITEM →</button>
+                </div>
+            </article>
+
+        </section>
 
     </div>
 
