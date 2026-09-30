@@ -1025,6 +1025,9 @@ a {
 }
 
 
+/* MEMBER PROFILE / BADGE CABINET */
+.member-card{cursor:pointer}.member-profile-overlay{position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;padding:28px;background:rgba(2,3,3,.82);backdrop-filter:blur(10px)}.member-profile-overlay.open{display:flex}.member-profile-modal{width:min(900px,100%);max-height:calc(100vh - 56px);overflow:auto;border:1px solid #3c403f;background:radial-gradient(ellipse at 50% 0%,rgba(76,164,208,.08),transparent 48%),linear-gradient(145deg,#101212,#080909 72%);box-shadow:0 24px 80px rgba(0,0,0,.55)}.member-profile-head{padding:25px 28px 22px;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;gap:24px}.member-profile-kicker{color:#6f7472;font-size:8px;font-weight:600;letter-spacing:4px}.member-profile-name{margin-top:9px;color:#c8c9c4;font-size:28px;font-weight:650}.member-profile-meta{margin-top:7px;color:#747874;font-size:9px}.member-profile-close{width:36px;height:36px;border:1px solid #3b3e3b;background:rgba(255,255,255,.015);color:#8e918d}.badge-cabinet{padding:27px 28px 31px}.badge-cabinet-title{margin-bottom:15px;color:#8b8e89;font-size:8px;font-weight:600;letter-spacing:4px}.badge-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}.badge-slot{min-height:150px;padding:17px 14px;border:1px solid #292c2a;background:rgba(255,255,255,.012);text-align:center;opacity:.52}.badge-slot.earned{opacity:1;border-color:#4a504c;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(76,164,208,.025))}.badge-mark{width:48px;height:48px;margin:0 auto 13px;border:1px solid #454946;border-radius:50%;display:grid;place-items:center;color:#7d817d;font-size:17px}.badge-slot.earned .badge-mark{color:#bcc2be;border-color:#6b7470;box-shadow:0 0 17px rgba(98,178,219,.09)}.badge-name{color:#aaaDA8;font-size:10px;font-weight:650}.badge-description{margin-top:7px;color:#666a67;font-size:8px;line-height:1.55}.badge-earned{margin-top:9px;color:#7f9daf;font-size:7px}.badge-tier-green .badge-mark{border-color:#56775f}.badge-tier-silver .badge-mark{border-color:#8a8e8d}.badge-tier-gold .badge-mark{border-color:#8d7952}.badge-tier-platinum .badge-mark{border-color:#94a9b4}@media(max-width:760px){.badge-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 /* =========================================================
    ACHIEVEMENTS
    ========================================================= */
@@ -2285,6 +2288,8 @@ a {
 
 
 
+<div id="memberProfileOverlay" class="member-profile-overlay" aria-hidden="true"><section class="member-profile-modal" role="dialog" aria-modal="true"><header class="member-profile-head"><div><div class="member-profile-kicker">FROSTBITE MEMBER</div><div id="memberProfileName" class="member-profile-name">MEMBER</div><div id="memberProfileMeta" class="member-profile-meta"></div></div><button id="memberProfileClose" class="member-profile-close" type="button">×</button></header><div class="badge-cabinet"><div class="badge-cabinet-title">ACHIEVEMENT CABINET</div><div id="memberBadgeGrid" class="badge-grid"></div></div></section></div>
+
 <div id="accessOverlay" class="access-overlay" aria-hidden="true">
     <section class="access-dialog" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
 
@@ -2540,6 +2545,9 @@ function memberCardMarkup(member) {
         <article
             class="member-card"
             data-name="${member.name.toLowerCase()}"
+            data-member-id="${member.id}"
+            tabindex="0"
+            role="button"
         >
 
             <div class="member-card-top">
@@ -2658,6 +2666,13 @@ function renderMembers(members) {
         memberMarkup;
 }
 
+
+/* MEMBER PROFILE / BADGE CABINET */
+const BADGE_DEFINITIONS=[{key:"war_hero",name:"WAR HERO",mark:"WH",description:"25 consecutive successful war participations."},{key:"war_pig",name:"WAR PIG",mark:"WP",description:"Top five by hits in five consecutive wars."},{key:"chain_smoker",name:"CHAIN SMOKER",mark:"CS",description:"More than 100 hits in a single chain."},{key:"gym_junkie",name:"GYM JUNKIE",mark:"GJ",description:"Reach and unlock George's Gym."},{key:"criminal",name:"CRIMINAL",mark:"CR",description:"Participate in more than 25 successful organised crimes."},{key:"la_familia",name:"LA FAMILIA",mark:"LF",description:"Faction tenure: 30 / 90 / 180 / 365 days."},{key:"trader",name:"TRADER",mark:"TR",description:"Awarded by Frostbite management after store-history review."},{key:"reserved",name:"RESERVED",mark:"?",description:"Reserved for a future Frostbite achievement."}];
+const memberProfileOverlay=document.getElementById("memberProfileOverlay"),memberProfileClose=document.getElementById("memberProfileClose"),memberProfileName=document.getElementById("memberProfileName"),memberProfileMeta=document.getElementById("memberProfileMeta"),memberBadgeGrid=document.getElementById("memberBadgeGrid");
+function badgeTierClass(t){const v=String(t||"").toLowerCase();return["green","silver","gold","platinum"].includes(v)?`badge-tier-${v}`:""}function formatBadgeDate(t){return t?new Date(Number(t)*1000).toLocaleDateString("en-AU",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase():""}
+async function openMemberProfile(m){if(!m)return;memberProfileName.textContent=m.name;memberProfileName.className=`member-profile-name ${getNameRoleClass(m)}`;memberProfileMeta.textContent=`TORN ID ${m.id} · ${roleLabel(getMemberRole(m))}`;memberBadgeGrid.innerHTML='<div class="members-live-message">LOADING ACHIEVEMENTS...</div>';memberProfileOverlay.classList.add("open");let earned=[];try{const r=await fetch(`/api/achievements?memberId=${encodeURIComponent(m.id)}`,{cache:"no-store"}),d=await r.json();if(r.ok&&d?.ok&&Array.isArray(d.achievements))earned=d.achievements}catch{}const map=new Map(earned.map(x=>[String(x.badgeKey),x]));memberBadgeGrid.innerHTML=BADGE_DEFINITIONS.map(b=>{const a=map.get(b.key),tier=a?.badgeTier||"",label=a?`${tier?tier.toUpperCase()+" · ":""}EARNED ${formatBadgeDate(a.earnedAt)}`:"LOCKED";return`<div class="badge-slot ${a?"earned":""} ${badgeTierClass(tier)}"><div class="badge-mark">${b.mark}</div><div class="badge-name">${b.name}</div><div class="badge-description">${b.description}</div><div class="badge-earned">${label}</div></div>`}).join("")}
+function closeMemberProfile(){memberProfileOverlay.classList.remove("open")}membersGrid.addEventListener("click",e=>{const c=e.target.closest(".member-card");if(c)openMemberProfile(temporaryMembers.find(x=>Number(x.id)===Number(c.dataset.memberId)))});membersGrid.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const c=e.target.closest(".member-card");if(c){e.preventDefault();openMemberProfile(temporaryMembers.find(x=>Number(x.id)===Number(c.dataset.memberId)))}});memberProfileClose.addEventListener("click",closeMemberProfile);memberProfileOverlay.addEventListener("click",e=>{if(e.target===memberProfileOverlay)closeMemberProfile()});
 
 /* =========================================================
    LIVE MEMBER DATA
