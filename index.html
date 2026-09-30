@@ -474,6 +474,12 @@ a {
 }
 
 
+.header-member-search{display:none;width:190px;height:32px;padding:0 11px;border:1px solid #343835;background:rgba(6,7,7,.78);color:#a3a4a0;outline:none;font-size:9px;letter-spacing:.4px;transition:border-color .18s ease,width .18s ease,background .18s ease}
+.header-member-search::placeholder{color:#555a56}.header-member-search:focus{width:220px;border-color:#515854;background:rgba(9,11,11,.92)}
+body.members-active .header-member-search{display:block}.member-toolbar{grid-template-columns:170px 170px!important;justify-content:end}.member-toolbar .search-box{display:none}
+@media(max-width:760px){body.members-active .header-member-search{display:none}.member-toolbar{grid-template-columns:1fr!important}.member-toolbar .search-box{display:block}.member-toolbar .toolbar-select{width:100%}}
+
+
 /* =========================================================
    WELCOME
    ========================================================= */
@@ -1842,6 +1848,8 @@ a {
         </button>
 
 
+        <input id="headerMemberSearch" class="header-member-search" type="search" placeholder="Search members..." autocomplete="off" aria-label="Search members">
+
         <nav class="main-nav">
 
             <button
@@ -2425,6 +2433,8 @@ const navButtons =
 
 function showPage(pageId) {
 
+    document.body.classList.toggle("members-active", pageId === "members");
+
     if (pageId === "admin") {
         const savedMember = getSavedMember();
 
@@ -2937,20 +2947,21 @@ async function loadRegisteredMembers() {
     }
 }
 
-memberSearch.addEventListener("input", () => {
-    const search =
-        memberSearch.value
-            .trim()
-            .toLowerCase();
-
-    const filtered =
-        temporaryMembers.filter(member =>
-            member.name
-                .toLowerCase()
-                .includes(search)
-        );
-
+function filterMembersBySearch(value) {
+    const search = value.trim().toLowerCase();
+    const filtered = temporaryMembers.filter(member =>
+        member.name.toLowerCase().includes(search)
+    );
     renderMembers(filtered);
+}
+memberSearch.addEventListener("input", () => {
+    headerMemberSearch.value = memberSearch.value;
+    filterMembersBySearch(memberSearch.value);
+});
+const headerMemberSearch = document.getElementById("headerMemberSearch");
+headerMemberSearch.addEventListener("input", () => {
+    memberSearch.value = headerMemberSearch.value;
+    filterMembersBySearch(headerMemberSearch.value);
 });
 
 
