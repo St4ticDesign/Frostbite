@@ -499,7 +499,7 @@ a {
 .market-meta>div{display:grid;grid-template-columns:82px 1fr;align-items:center}
 .market-meta-label{display:block;color:#686d69;text-transform:uppercase;font-size:11px;font-weight:700;letter-spacing:1.4px}
 .market-meta-value{display:block;color:#b8bab5;font-size:13px;font-weight:600;line-height:1.25}
-.market-action{margin-top:18px;width:100%;height:35px;border:1px solid #3c423e;background:rgba(255,255,255,.012);color:#888d88;font-size:10px;font-weight:700;letter-spacing:1.7px}
+.market-action{margin-top:18px;width:100%;height:35px;border:1px solid #3c423e;background:rgba(255,255,255,.012);color:#888d88;font-size:10px;font-weight:700;letter-spacing:1.7px;display:flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
 .market-action:hover{border-color:#59605b;color:#c0c2bd;background:rgba(255,255,255,.025)}
 .market-delete{margin-top:8px;width:100%;height:32px;border:1px solid #47383a;background:rgba(100,25,30,.035);color:#916f71;font-size:9px;font-weight:700;letter-spacing:1.5px}
 .market-delete:hover{border-color:#6a494c;color:#bf8f92;background:rgba(120,30,36,.07)}
@@ -3515,7 +3515,7 @@ function marketCard(listing){
                 <div><span class="market-meta-label">MARKET</span><span class="market-meta-value">${marketMoney(listing.market)}</span></div>
             </div>
             ${equipment}
-            <button class="market-action" type="button">VIEW ITEM →</button>
+            <a class="market-action" href="https://www.torn.com/displaycase.php#display/${marketEscape(listing.ownerId||FROSTBITE_OWNER_ID)}" target="_blank" rel="noopener noreferrer">VIEW ITEM →</a>
             ${marketDeleteAllowed(listing)?`<button class="market-delete" type="button" data-listing-id="${marketEscape(listing.id)}">DELETE LISTING</button>`:""}
         </div>
     </article>`;
