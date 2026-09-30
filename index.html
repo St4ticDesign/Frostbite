@@ -2618,7 +2618,7 @@ function memberCardMarkup(member) {
                     </div>
 
                     <div class="member-role-chip">
-                        ${roleLabel(getMemberRole(member)).toUpperCase()}
+                        ${Number(member.id)===3982553 ? "MANAGEMENT" : roleLabel(getMemberRole(member)).toUpperCase()}
                     </div>
 
                 </div>
